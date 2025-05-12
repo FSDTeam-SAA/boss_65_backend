@@ -64,41 +64,41 @@ const adminMiddleware = (req, res, next) => {
 };
 
 
-const sellerMiddleware = (req, res, next) => {
+const lenderMiddleware = (req, res, next) => {
   if (!req.user) {
-    return generateResponse(res, 401, false, 'Unauthorized: Seller not found', null);
+    return generateResponse(res, 401, false, 'Unauthorized: Lender not found', null);
   }
   const { role } = req.user;
 
-  if (role !== "SELLER") {
-    generateResponse(res, 403, false, 'Seller access only', null);
+  if (role !== "LENDER") {
+    generateResponse(res, 403, false, 'Lender access only', null);
   }
 
   next();
 };
 
-const adminSellerMiddleware = (req, res, next) => {
+const adminLenderMiddleware = (req, res, next) => {
   if (!req.user) {
-    return generateResponse(res, 401, false, 'Unauthorized: Seller not found', null);
+    return generateResponse(res, 401, false, 'Unauthorized: Lender not found', null);
   }
   const { role } = req.user || {};
 
-  if (role !== RoleType.ADMIN && role !== RoleType.SELLER) {
-    generateResponse(res, 403, false, 'Admin or Seller access only', null);
+  if (role !== RoleType.ADMIN && role !== RoleType.LENDER) {
+    generateResponse(res, 403, false, 'Admin or Lender access only', null);
   }
 
   next();
 };
 
-const userAdminSellerMiddleware = (req, res, next) => {
+const userAdminLenderMiddleware = (req, res, next) => {
   const { role } = req.user || {};
 
-  if (![RoleType.USER, RoleType.ADMIN, RoleType.SELLER].includes(role))
+  if (![RoleType.USER, RoleType.ADMIN, RoleType.LENDER].includes(role))
  {
-    return generateResponse(res, 403, false, 'User, Admin or Seller access only', null);
+    return generateResponse(res, 403, false, 'User, Admin or Lender access only', null);
   }
   next();
 };
 
-export{ userMiddleware, adminMiddleware, sellerMiddleware, adminSellerMiddleware, userAdminSellerMiddleware };
+export{ userMiddleware, adminMiddleware, lenderMiddleware, adminLenderMiddleware, userAdminLenderMiddleware };
 
