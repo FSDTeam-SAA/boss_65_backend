@@ -19,6 +19,6 @@ router.use('/v1/contact', contactRoutes)
 router.use('/v1/newsletterSubscription', newsletterSubscriptionRoutes)
 
 router.use('/v1/reviews', reviewsRoutes)
-router.use('/v1/stats', getStats)
+
 
 export default router;
