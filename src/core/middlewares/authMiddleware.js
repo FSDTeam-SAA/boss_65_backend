@@ -4,7 +4,6 @@ import RoleType from '../../lib/types.js';
 import User from '../../entities/auth/auth.model.js';
 import { generateResponse } from '../../lib/responseFormate.js';
 
-
 export const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) generateResponse(res, 401, false, 'No token, auth denied', null);
