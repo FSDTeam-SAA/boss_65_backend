@@ -7,9 +7,14 @@ const termsAndConditionsSchema = new Schema(
             required: true,
             trim: true
         },
+        details: {
+            type: String,
+            required: true,
+            trim: true
+        },
         status: {
             type: String,
-            enum: ['active', 'draft'],
+            enum: ['active', 'paused'],
             required: true
         }
     },
