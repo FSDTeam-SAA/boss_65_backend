@@ -10,16 +10,6 @@ const reviewSchema = new mongoose.Schema(
         review: { type: Number, required: true, min: 0, max: 5 },
         comment: { type: String, default: '', trim: true },
 
-        serviceType: {
-            type: String,
-            enum: ['removal-request', 'house-visit', 'fast-removal'],
-            required: true
-        },
-        serviceId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true
-        },
-
         status: {
             type: String,
             enum: ['pending', 'approved'],
