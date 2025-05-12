@@ -1,4 +1,5 @@
 import { generateResponse } from '../../lib/responseFormate.js';
+import User from '../auth/auth.model.js';
 import * as ApplicationService from './application.service.js';
 
 export const newApplication = async (req, res) => {
@@ -59,3 +60,18 @@ export const deleteApplication = async (req, res) => {
         }
     }
 }
+
+
+
+export const approveApplication = async (req, res) => {
+    try {
+        const applicationId = req.params.id;
+
+        // Step 1: Call the service to create the user and send the email
+        const user = await ApplicationService.createUserFromApplication(applicationId);
+
+        generateResponse(res, 201, true, 'User profile created and email sent successfully', user);
+    } catch (error) {
+        generateResponse(res, 500, false, 'Internal server error', null);
+    }
+};
