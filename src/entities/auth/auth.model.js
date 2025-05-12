@@ -13,8 +13,9 @@ const AddressSchema = new mongoose.Schema({
 
 const UserSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    fullName: { type: String },
+    firstName: { type: String },
+    lastName: { type: String },
     phoneNumber: { type: String, default: '' },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -53,7 +54,7 @@ const UserSchema = new mongoose.Schema(
       default: ''
     },
 
-    isActive : {
+    isActive: {
       type: Boolean,
       default: true
     },
