@@ -6,7 +6,7 @@ import contactRoutes from '../../entities/contact/contact.routes.js';
 import newsletterSubscriptionRoutes from '../../entities/newsletterSubscription/newsletterSubscription.routes.js'
 
 import reviewsRoutes from '../../entities/review/review.routes.js'
-import { getStats } from '../../lib/statController.js';
+
 
 
 const router = express.Router();
