@@ -1,3 +1,5 @@
+import HomepageSection from './homepageSections.model.js';
+
 export const createHomepageSectionService = async (data) => {
   const newHomepageSection = await HomepageSection.create(data);
   return newHomepageSection;

@@ -1,3 +1,5 @@
+import Testimonial from "./testimonials.model.js";
+
 export const createTestimonialService = async (data) => {
   const testimonial = await Testimonial.create(data);
   return testimonial;

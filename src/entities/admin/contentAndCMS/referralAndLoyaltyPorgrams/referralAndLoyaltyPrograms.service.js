@@ -1,5 +1,5 @@
 
-import ReferralAndLoyaltyProgram from './referralAndLoyaltyPrograms.model.js'; // Assuming the model is imported from this path
+import ReferralAndLoyaltyProgram from './referralAndLoyaltyPrograms.model.js'; 
 
 export const createReferralAndLoyaltyProgramService = async (data) => {
     const referralAndLoyaltyProgram = await ReferralAndLoyaltyProgram.create(data);

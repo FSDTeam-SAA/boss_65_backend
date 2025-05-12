@@ -1,9 +1,11 @@
+import { createBannerService } from "./banners.service";
+
 export const createBanner = async (req, res) => {
   try {
     const banner = await createBannerService(req.body);
-    res.json(generateResponse(banner, 201));
+    generateResponse(banner, 201)
   } catch (error) {
-    res.status(400).json(generateResponse(error.message, 400));
+    generateResponse(error.message, 400)
   }
 };
 

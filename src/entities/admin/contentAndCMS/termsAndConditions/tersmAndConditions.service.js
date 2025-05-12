@@ -1,3 +1,5 @@
+import TermsAndConditions from './termsAndConditions.model.js';
+
 export const createItemService = async (data) => {
   const item = await TermsAndConditions.create(data);
   return item;
