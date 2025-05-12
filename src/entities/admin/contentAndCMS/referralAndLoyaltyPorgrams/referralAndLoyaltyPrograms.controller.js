@@ -1,3 +1,6 @@
+import { generateResponse } from "../../../../lib/responseFormate.js";
+import ReferralAndLoyaltyProgram from "./referralAndLoyaltyPrograms.model.js";
+
 export const createReferralAndLoyaltyProgram = async (req, res) => {
     const { programName, programType, programDesc, programImage, programStatus } = req.body;
     try {
@@ -8,9 +11,9 @@ export const createReferralAndLoyaltyProgram = async (req, res) => {
             programImage,
             programStatus
         });
-        res.status(201).json(generateResponse("Referral and Loyalty Program created successfully", { referralAndLoyaltyProgram }));
+        generateResponse("Referral and Loyalty Program created successfully", { referralAndLoyaltyProgram })
     } catch (error) {
-        res.status(400).json(generateResponse("Error creating Referral and Loyalty Program", {}, error));
+        generateResponse("Error creating Referral and Loyalty Program", {}, error)
     }
 };
 

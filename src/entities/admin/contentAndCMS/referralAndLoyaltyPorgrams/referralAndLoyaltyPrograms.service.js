@@ -1,4 +1,3 @@
-
 import ReferralAndLoyaltyProgram from './referralAndLoyaltyPrograms.model.js'; 
 
 export const createReferralAndLoyaltyProgramService = async (data) => {
