@@ -3,7 +3,7 @@ import {
      getAllUsersController, getAllAdminsController, getAllSelleresController, getUserByIdController,updateUserController, deleteUserController, 
      createAvatarController,updateAvatarProfileController,deleteAvatarController,
      createMultipleAvatarController,updateMultipleAvatarController,deleteMultipleAvatarController,
-     createUserPDFController,updateUserPDFController,deleteUserPDFController
+     createUserfileController,updateUserfileController,deletefileController
     } from "./user.controller.js";
 import { adminMiddleware, verifyToken } from "../../core/middlewares/authMiddleware.js";
 import express from "express";

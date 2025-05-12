@@ -14,9 +14,9 @@ import {
   updateMultipleAvatar,
   deleteMultipleAvatar,
   
-  createUserPDF,
-  updateUserPDF,
-  deleteUserPDF,
+  createUserFileService,
+  updateUserFileService,  
+  deleteUserFileService
 
 } from "./user.service.js";
 
@@ -168,33 +168,41 @@ export const deleteMultipleAvatarController = async (req, res) => {
 
 
 
-export const createUserPDFController = async (req, res) => {
+export const createUserfileController = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await createUserPDF(id, req.files);
+    if (!req.files?.userPDF) {
+      return generateResponse(res, 400, false, 'PDF file is required');
+    }
+
+    const user = await createUserFileService(id, req.files);
     generateResponse(res, 200, true, 'PDF uploaded successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload PDF', null);
+    console.error(error);
+    const status = error.message.includes('not found') ? 404 : 500;
+    const message = status === 500 ? 'Failed to upload file' : error.message;
+    generateResponse(res, status, false, message);
   }
 };
 
-export const updateUserPDFController = async (req, res) => {
+export const updateUserfileController = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await updateUserPDF(id, req.files);
-    generateResponse(res, 200, true, 'PDF uploaded successfully', user);
+    const user = await updateUserFileService(id, req.files);
+    generateResponse(res, 200, true, 'PDF updated successfully', user); 
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload PDF', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to update file', error.message);
   }
 };
 
-
-export const deleteUserPDFController = async (req, res) => {
+export const deletefileController = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await deleteUserPDF(id);
-    generateResponse(res, 200, true, 'PDF deleted successfully', user);
+    const updatedUser = await deleteUserFileService(id);
+    generateResponse(res, 200, true, 'PDF deleted successfully', updatedUser);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to delete PDF', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to delete file', error.message);
   }
 };
