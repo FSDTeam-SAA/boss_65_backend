@@ -2,7 +2,7 @@ import { generateResponse } from "../../lib/responseFormate.js";
 import { 
   getAllUsers,
   getAllAdmins,
-  getAllSuperAdmins,
+  getAllSellers,
   getUserById,
   updateUser,
   deleteUser,
@@ -43,13 +43,13 @@ export const getAllAdminsController = async (req, res) => {
 };
 
 
-export const getAllSuperAdminsController = async (req, res) => {
+export const getAllSelleresController = async (req, res) => {
   try {
     const { page, limit, search, date } = req.query;
-    const { superAdmins, paginationInfo } = await getAllSuperAdmins({ page, limit, search, date });
-    generateResponse(res, 200, true, 'Super Admins fetched successfully', { superAdmins, paginationInfo });
+    const { sellers, paginationInfo } = await getAllSellers({ page, limit, search, date });
+    generateResponse(res, 200, true, 'Seller fetched successfully', { sellers, paginationInfo });
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to fetch super admins', null);
+    generateResponse(res, 500, false, 'Failed to fetch seller', null);
   }
 };
 
@@ -94,6 +94,7 @@ export const createAvatarController = async (req, res) => {
     if (!req.files?.profileImage) {
       return generateResponse(res, 400, false, 'Profile image is required');
     }
+    // console.log(id)
 
     const user = await createAvatarProfile(id, req.files);
     generateResponse(res, 200, true, 'Avatar uploaded successfully', user);

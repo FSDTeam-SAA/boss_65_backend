@@ -3,6 +3,7 @@ import cloudinary, { cloudinaryUpload } from "../../lib/cloudinaryUpload.js";
 import User from "../auth/auth.model.js";
 import RoleType from "../../lib/types.js";
 import fs from "fs";
+import { Types,ObjectId, Mongoose } from "mongoose";
 
 
 // Get all users
@@ -35,18 +36,18 @@ export const getAllAdmins = async ({ page = 1, limit = 10, search, date }) => {
 };
 
 
-// Get all super admins
-export const getAllSuperAdmins = async ({ page = 1, limit = 10, search, date }) => {
+// Get all sellers 
+export const getAllSellers = async ({ page = 1, limit = 10, search, date }) => {
   const filter = createFilter(search, date);
-  const totalSuperAdmins = await User.countDocuments({ ...filter, role: RoleType.SUPER_ADMIN });
-  const superAdmins = await User.find({ ...filter, role: RoleType.SUPER_ADMIN })
+  const totalSellers = await User.countDocuments({ ...filter, role: RoleType.SELLER });
+  const sellers = await User.find({ ...filter, role: RoleType.SELLER })
     .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires")
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
 
-  const paginationInfo = createPaginationInfo(page, limit, totalSuperAdmins);
-  return { superAdmins, paginationInfo };
+  const paginationInfo = createPaginationInfo(page, limit, totalSellers);
+  return { sellers, paginationInfo };
 };
 
 
@@ -62,7 +63,6 @@ export const getUserById = async (userId) => {
 
 // Update user
 export const updateUser = async ({ id, ...updateData }) => {
-  console.log(updateData);
   const updatedUser = await User.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -87,7 +87,9 @@ export const deleteUser = async (userId) => {
 
 // Upload avatar
 export const createAvatarProfile = async (id, files) => {
-  const userFound = await User.findById(id);
+
+  const userFound = await User.findById({_id: id});
+
   if (!userFound) throw new Error('User not found');
 
   const profileImage = files.profileImage[0];
@@ -135,12 +137,13 @@ export const updateAvatarProfile = async (id, files) => {
     const publicId = userFound.profileImage.split('/').pop().split('.')[0];
     await cloudinary.uploader.destroy(publicId);
   }
-  
+
   const fullName = userFound.fullName || "user";
   const sanitizedTitle = fullName
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[?&=]/g, "");
+  
 
   const imgUrl = await cloudinaryUpload(profileImage.path, sanitizedTitle, "user-profile");
   if (imgUrl === "file upload failed") {
