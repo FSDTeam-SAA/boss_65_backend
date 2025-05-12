@@ -133,11 +133,12 @@ export const deleteAvatarController = async (req, res) => {
 
 export const createMultipleAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;    
-    const user = await createMultipleAvatar(id, req.files); 
+    const { id } = req.params;
+    const user = await createMultipleAvatar(id, req.files);
     generateResponse(res, 200, true, 'Multiple avatars uploaded successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload multiple avatars', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to upload multiple avatars', error.message);
   }
 };
 
@@ -146,9 +147,10 @@ export const updateMultipleAvatarController = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await updateMultipleAvatar(id, req.files);
-    generateResponse(res, 200, true, 'Multiple avatars uploaded successfully', user);
+    generateResponse(res, 200, true, 'Multiple avatars updated successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload multiple avatars', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to update multiple avatars', error.message);
   }
 };
 
@@ -159,9 +161,11 @@ export const deleteMultipleAvatarController = async (req, res) => {
     const user = await deleteMultipleAvatar(id);
     generateResponse(res, 200, true, 'Multiple avatars deleted successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to delete multiple avatars', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to delete multiple avatars', error.message);
   }
 };
+
 
 
 export const createUserPDFController = async (req, res) => {

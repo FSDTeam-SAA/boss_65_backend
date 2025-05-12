@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema(
     phoneNumber: { type: String, default: '' },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    username: { type: String, unique: true, default: '' },
+    username: { type: String, unique: true },
     dob: { type: Date, default: null },
     gender: {
       type: String,
@@ -94,6 +94,7 @@ UserSchema.methods.generateAccessToken = function (payload) {
 UserSchema.methods.generateRefreshToken = function (payload) {
   return jwt.sign(payload, refreshTokenSecrete, { expiresIn: refreshTokenExpires });
 };
+
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export default User;

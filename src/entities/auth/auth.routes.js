@@ -7,8 +7,7 @@ import {
   verifyCode,
   resetPassword,
   logoutUser,
-  updatePassword,
-  
+  updatePassword
 } from './auth.controller.js';
 import { userAdminLenderMiddleware } from '../../core/middlewares/authMiddleware.js';
 
@@ -20,7 +19,8 @@ router.post('/refresh-access-token', refreshAccessToken);
 router.post('/forget-password', forgetPassword);
 router.post('/verify-code', verifyCode);
 router.post('/reset-password', resetPassword);
-router.post('/logout',userAdminLenderMiddleware, logoutUser);
+router.post('/logout', userAdminLenderMiddleware, logoutUser);
 router.put('/update-password/:id', updatePassword);
+
 
 export default router;

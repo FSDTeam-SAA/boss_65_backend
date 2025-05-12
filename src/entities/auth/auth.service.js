@@ -27,6 +27,7 @@ export const registerUserService = async ({
   return { _id, firstName, lastName, email, role,  profileImage };
 };
 
+
 export const loginUserService = async ({ email, password }) => {
   if (!email || !password) throw new Error('Email and password are required');
 
@@ -49,6 +50,7 @@ export const loginUserService = async ({ email, password }) => {
 
   return data
 };
+
 
 export const refreshAccessTokenService = async (refreshToken) => {
   if (!refreshToken) throw new Error('No refresh token provided');
@@ -75,6 +77,7 @@ export const refreshAccessTokenService = async (refreshToken) => {
   }
 };
 
+
 export const forgetPasswordService = async (email) => {
 
   if (!email) throw new Error('Email is required')
@@ -98,6 +101,7 @@ export const forgetPasswordService = async (email) => {
   return;
 };
 
+
 export const verifyCodeService = async ({ email, otp }) => {
 
   if (!email || !otp) throw new Error('Email and otp are required')
@@ -117,6 +121,7 @@ export const verifyCodeService = async ({ email, otp }) => {
   return;
 };
 
+
 export const resetPasswordService = async ({ email, newPassword }) => {
   if (!email || !newPassword) throw new Error('Email and new password are required');
 
@@ -131,6 +136,7 @@ export const resetPasswordService = async ({ email, newPassword }) => {
   return;
 };
 
+
 export const updatePasswordService = async ({ id, password, newPassword }) => {
   if (!id || !password || !newPassword) throw new Error('Email, current password, and new password are required');
 
@@ -141,7 +147,9 @@ export const updatePasswordService = async ({ id, password, newPassword }) => {
   if (!isMatch) throw new Error('Incorrect current password');
 
   user.password = newPassword;
-  await user.save(); // pre-save hook will hash it
+  await user.save(); 
 
   return { message: 'Password updated successfully' };
 };
+
+
