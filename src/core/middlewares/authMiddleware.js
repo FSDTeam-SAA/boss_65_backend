@@ -77,6 +77,7 @@ const lenderMiddleware = (req, res, next) => {
   next();
 };
 
+
 const adminLenderMiddleware = (req, res, next) => {
   if (!req.user) {
     return generateResponse(res, 401, false, 'Unauthorized: Lender not found', null);
@@ -90,6 +91,7 @@ const adminLenderMiddleware = (req, res, next) => {
   next();
 };
 
+
 const userAdminLenderMiddleware = (req, res, next) => {
   const { role } = req.user || {};
 
@@ -99,6 +101,7 @@ const userAdminLenderMiddleware = (req, res, next) => {
   }
   next();
 };
+
 
 export{ userMiddleware, adminMiddleware, lenderMiddleware, adminLenderMiddleware, userAdminLenderMiddleware };
 

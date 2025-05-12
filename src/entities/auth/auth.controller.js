@@ -7,8 +7,10 @@ import {
   forgetPasswordService,
   verifyCodeService,
   resetPasswordService,
-  updatePasswordService
+  updatePasswordService,
+
 } from './auth.service.js';
+
 
 export const registerUser = async (req, res, next) => {
   const { firstName, lastName, email, password, postalCode } = req.body;
@@ -29,6 +31,7 @@ export const registerUser = async (req, res, next) => {
     }
   }
 };
+
 
 export const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
@@ -57,6 +60,7 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
+
 export const logoutUser = async (req, res, next) => {
 
   const userId = req.user._id;
@@ -69,6 +73,7 @@ export const logoutUser = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const refreshAccessToken = async (req, res, next) => {
   const { refreshToken } = req.body;
@@ -92,6 +97,7 @@ export const refreshAccessToken = async (req, res, next) => {
     }
   }
 };
+
 
 export const forgetPassword = async (req, res, next) => {
 
@@ -148,6 +154,7 @@ export const verifyCode = async (req, res, next) => {
   }
 };
 
+
 export const resetPassword = async (req, res, next) => {
   const { email, newPassword } = req.body;
   try {
@@ -173,7 +180,6 @@ export const resetPassword = async (req, res, next) => {
     }
   }
 };
-
 
 
 export const updatePassword = async (req, res, next) => {
@@ -207,3 +213,4 @@ export const updatePassword = async (req, res, next) => {
     }
   }
 };
+
