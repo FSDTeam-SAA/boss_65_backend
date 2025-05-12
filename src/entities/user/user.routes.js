@@ -31,8 +31,8 @@ router.put("/upload-multiple-avatar/:id", verifyToken, multerUpload([{ name: "mu
 router.delete("/upload-multiple-avatar/:id", verifyToken,deleteMultipleAvatarController);
 
 // file upload
-router.post("/upload-file/:id", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]), createUserfileController);
-router.put("/upload-file/:id", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]), updateUserfileController);
+router.post("/upload-file/:id", verifyToken, multerUpload([{ name: "pdfFile", maxCount: 1 },]), createUserfileController);
+router.put("/upload-file/:id", verifyToken, multerUpload([{ name: "pdfFile", maxCount: 1 },]), updateUserfileController);
 router.delete("/upload-file/:id", verifyToken, deletefileController);
 
 export default router;
