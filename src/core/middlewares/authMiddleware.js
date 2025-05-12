@@ -60,7 +60,7 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-const sellerMiddleware = (req, res, next) => {
+const lenderMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token, auth denied' });
 
@@ -68,8 +68,8 @@ const sellerMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, accessTokenSecrete);
     req.user = decoded;
 
-    if (req.user.role !== RoleType.SELLER) {
-      return res.status(403).json({ message: 'Seller access only' });
+    if (req.user.role !== RoleType.LENDER) {
+      return res.status(403).json({ message: 'Lender access only' });
     }
 
     next();
@@ -87,9 +87,9 @@ const userAdminSellerMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, accessTokenSecrete);
     req.user = decoded;
 
-    const roles = [RoleType.USER, RoleType.ADMIN, RoleType.SELLER];
+    const roles = [RoleType.USER, RoleType.ADMIN, RoleType.LENDER];
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'User, Admin or Seller access only' });
+      return res.status(403).json({ message: 'User, Admin or Lender access only' });
     }
 
     next();
@@ -101,6 +101,6 @@ const userAdminSellerMiddleware = (req, res, next) => {
 export {
   userMiddleware,
   adminMiddleware,
-  sellerMiddleware,
+  lenderMiddleware,
   userAdminSellerMiddleware,
 };
