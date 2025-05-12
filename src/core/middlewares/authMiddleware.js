@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
-import { accessTokenSecrete } from '../../core/config/config.js';
+import {accessTokenSecrete} from '../../core/config/config.js';
 import RoleType from '../../lib/types.js';
-import { generateResponse } from '../../lib/responseFormate.js';
 import User from '../../entities/auth/auth.model.js';
+import { generateResponse } from '../../lib/responseFormate.js';
+
 
 export const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -34,6 +35,7 @@ export const verifyToken = async (req, res, next) => {
   }
 };
 
+
 const userMiddleware = (req, res, next) => {
   if (!req.user) {
     return generateResponse(res, 401, false, 'Unauthorized: User not found', null);
@@ -46,6 +48,7 @@ const userMiddleware = (req, res, next) => {
 
   next();
 };
+
 
 const adminMiddleware = (req, res, next) => {
   if (!req.user) {
@@ -60,47 +63,42 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-const lenderMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token, auth denied' });
 
-  try {
-    const decoded = jwt.verify(token, accessTokenSecrete);
-    req.user = decoded;
-
-    if (req.user.role !== RoleType.LENDER) {
-      return res.status(403).json({ message: 'Lender access only' });
-    }
-
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+const sellerMiddleware = (req, res, next) => {
+  if (!req.user) {
+    return generateResponse(res, 401, false, 'Unauthorized: Seller not found', null);
   }
+  const { role } = req.user;
+
+  if (role !== "SELLER") {
+    generateResponse(res, 403, false, 'Seller access only', null);
+  }
+
+  next();
 };
 
+const adminSellerMiddleware = (req, res, next) => {
+  if (!req.user) {
+    return generateResponse(res, 401, false, 'Unauthorized: Seller not found', null);
+  }
+  const { role } = req.user || {};
+
+  if (role !== RoleType.ADMIN && role !== RoleType.SELLER) {
+    generateResponse(res, 403, false, 'Admin or Seller access only', null);
+  }
+
+  next();
+};
 
 const userAdminSellerMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token, auth denied' });
+  const { role } = req.user || {};
 
-  try {
-    const decoded = jwt.verify(token, accessTokenSecrete);
-    req.user = decoded;
-
-    const roles = [RoleType.USER, RoleType.ADMIN, RoleType.LENDER];
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'User, Admin or Lender access only' });
-    }
-
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
+  if (![RoleType.USER, RoleType.ADMIN, RoleType.SELLER].includes(role))
+ {
+    return generateResponse(res, 403, false, 'User, Admin or Seller access only', null);
   }
+  next();
 };
 
-export {
-  userMiddleware,
-  adminMiddleware,
-  lenderMiddleware,
-  userAdminSellerMiddleware,
-};
+export{ userMiddleware, adminMiddleware, sellerMiddleware, adminSellerMiddleware, userAdminSellerMiddleware };
+
