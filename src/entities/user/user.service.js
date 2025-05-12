@@ -269,80 +269,84 @@ export const deleteMultipleAvatar = async (id) => {
 };
 
 
-// Upload user PDF
-export const createUserPDF = async (id, files) => {
+export const createUserFileService = async (id, files) => {
   const userFound = await User.findById(id);
-  if (!userFound) {
-    throw new Error('User not found');
+  if (!userFound) throw new Error('User not found');
+
+  const pdfFile = files.userPDF[0];
+  const sanitizedTitle = `${userFound._id}-${Date.now()}`;
+
+  try {
+    const result = await cloudinaryUpload(pdfFile.path, sanitizedTitle, "user-files", "raw");
+
+    if (!result?.url) throw new Error('Cloudinary upload failed');
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { pdfFile: result.url },
+      { new: true }
+    ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+
+    return updatedUser;
+  } catch (error) {
+    console.error('Error in createUserFileService:', error);
+    throw error;
+  } finally {
+    fs.unlink(pdfFile.path, () => {});
+  }
+};
+
+
+export const updateUserFileService = async (id, files) => {
+  const userFound = await User.findById(id);
+  if (!userFound) throw new Error('User not found');
+
+  if (!files?.userPDF?.length) throw new Error('PDF file is required');
+
+  const newPdf = files.userPDF[0];
+
+  if (userFound.pdfFile) {
+    const publicId = userFound.pdfFile.split('/').pop().split('.')[0];
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
   }
 
-  if (!files || !files.userPDF || files.userPDF.length === 0) {
-    throw new Error('PDF file is required');
-  }
+  const sanitizedTitle = `${userFound._id}-${Date.now()}`;
 
-  const userPDF = files.userPDF[0];
-  const sanitizedTitle = userFound.fullName
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[?&=]/g, "");
+  const result = await cloudinaryUpload(newPdf.path, sanitizedTitle, "user-files", "raw");
+  if (!result?.url) throw new Error('Cloudinary upload failed');
 
-  const pdfUrl = await cloudinaryUpload(userPDF.path, sanitizedTitle, "user-pdf");
-  if (pdfUrl === "file upload failed") {
-    throw new Error('File upload failed');
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(id, { pdfFile: pdfUrl.url }, { new: true })
-    .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { pdfFile: result.url },
+    { new: true }
+  ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
 
   return updatedUser;
 };
 
 
-export const updateUserPDF = async (id, files) => {
+export const deleteUserFileService = async (id) => {
   const userFound = await User.findById(id);
-  if (!userFound) {
-    throw new Error('User not found');
-  }
-
-  if (!files || !files.userPDF || files.userPDF.length === 0) {
-    throw new Error('PDF file is required');
-  }
-
-  const userPDF = files.userPDF[0];
-  const sanitizedTitle = userFound.fullName
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[?&=]/g, "");
-
-  const pdfUrl = await cloudinaryUpload(userPDF.path, sanitizedTitle, "user-pdf");
-  if (pdfUrl === "file upload failed") {
-    throw new Error('File upload failed');
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(id, { pdfFile: pdfUrl.url }, { new: true })
-    .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-  return updatedUser;
-};
-
-
-export const deleteUserPDF = async (id) => {
-  const userFound = await User.findById(id);
-  if (!userFound) {
-    throw new Error('User not found');
-  }
-
-  if (!userFound.pdfFile) {
-    throw new Error('No PDF file to delete'); 
-  }
+  if (!userFound) throw new Error('User not found');
+  if (!userFound.pdfFile) throw new Error('No file to delete');
 
   const publicId = userFound.pdfFile.split('/').pop().split('.')[0];
-  await cloudinary.uploader.destroy(publicId);
 
-  const updatedUser = await User.findByIdAndUpdate(id, { pdfFile: null }, { new: true })
-    .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+    if (result.result !== 'ok') throw new Error(`Cloudinary deletion failed: ${result.result}`);
 
-  return updatedUser;
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { pdfFile: '' },
+      { new: true }
+    ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+
+    return updatedUser;
+  } catch (error) {
+    console.error('Error in deleteUserFileService:', error);
+    throw error;
+  }
 };
 
 
