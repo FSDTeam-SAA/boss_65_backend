@@ -1,7 +1,10 @@
+import { generateResponse } from "../../../../lib/responseFormate.js";
+import Testimonial from "./testimonials.model.js";
+
 export const createTestimonial = async (req, res) => {
   try {
     const testimonial = await Testimonial.create(req.body);
-    res.status(201).json(generateResponse(testimonial, 'Testimonial created successfully'));
+    generateResponse(testimonial, 'Testimonial created successfully')
   } catch (error) {
     res.status(400).json(generateResponse(null, error.message, false));
   }
