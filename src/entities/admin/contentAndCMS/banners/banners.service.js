@@ -1,3 +1,5 @@
+import Banner from './banners.model.js';
+
 export const createBannerService = async (data) => {
   const banner = await Banner.create(data);
   return banner;
