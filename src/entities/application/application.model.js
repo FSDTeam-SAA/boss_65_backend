@@ -92,7 +92,7 @@ const LenderApplicationSchema = new Schema(
       type: String,
       trim: true,
     },
-   
+
   },
   {
     timestamps: true,
