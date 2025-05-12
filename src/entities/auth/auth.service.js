@@ -18,13 +18,13 @@ export const registerUserService = async ({
     firstName,
     lastName,
     email,
-    password
+    password,
   });
 
   const user = await newUser.save();
 
   const { _id, role, profileImage } = user;
-  return { _id, firstName, lastName, email, role, profileImage };
+  return { _id, firstName, lastName, email, role,  profileImage };
 };
 
 export const loginUserService = async ({ email, password }) => {

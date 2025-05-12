@@ -3,7 +3,6 @@ import cloudinary, { cloudinaryUpload } from "../../lib/cloudinaryUpload.js";
 import User from "../auth/auth.model.js";
 import RoleType from "../../lib/types.js";
 import fs from "fs";
-import { Types,ObjectId, Mongoose } from "mongoose";
 
 
 // Get all users
