@@ -8,8 +8,7 @@ const AddressSchema = new mongoose.Schema({
   country: { type: String, default: '' },
   cityState: { type: String, default: '' },
   roadArea: { type: String, default: '' },
-  postalCode: { type: String, default: '' },
-  taxId: { type: String, default: '' }
+  postalCode: { type: String, required: true },
 }, { _id: false });
 
 const UserSchema = new mongoose.Schema(
@@ -30,7 +29,7 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       default: RoleType.USER,
-      enum: [RoleType.USER, RoleType.ADMIN, RoleType.SELLER],
+      enum: [RoleType.USER, RoleType.ADMIN, RoleType.LENDER],
     },
     bio: { type: String, default: '' },
     address: { type: AddressSchema, default: () => ({}) },
@@ -54,6 +53,11 @@ const UserSchema = new mongoose.Schema(
       default: ''
     },
 
+    isActive : {
+      type: Boolean,
+      default: true
+    },
+    
     hasActiveSubscription: { type: Boolean, default: false },
     subscriptionExpireDate: { type: Date, default: null },
   },
