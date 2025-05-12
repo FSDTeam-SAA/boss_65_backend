@@ -269,86 +269,96 @@ export const deleteMultipleAvatar = async (id) => {
 };
 
 
-export const createUserFileService = async (id, files) => {
-  const userFound = await User.findById(id);
-  if (!userFound) throw new Error('User not found');
-
-  const pdfFile = files.userPDF[0];
-  const sanitizedTitle = `${userFound._id}-${Date.now()}`;
-
-  try {
-    const result = await cloudinaryUpload(pdfFile.path, sanitizedTitle, "user-files", "raw");
-
-    if (!result?.url) throw new Error('Cloudinary upload failed');
-
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { pdfFile: result.url },
-      { new: true }
-    ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-    return updatedUser;
-  } catch (error) {
-    console.error('Error in createUserFileService:', error);
-    throw error;
-  } finally {
-    fs.unlink(pdfFile.path, () => {});
+export const uploadUserFileService = async (id, file) => {
+  if (!file) {
+    throw new Error("No file provided");
   }
+
+  const uploadedFile = await cloudinaryUpload(file.path, undefined, "user_files");
+
+  if (uploadedFile === "file upload failed") {
+    throw new Error("Cloudinary upload failed");
+  }
+
+  const updatedResource = await User.findByIdAndUpdate(
+    id,
+    { pdfFile: uploadedFile.secure_url }, // or rename to `fileUrl` later
+    { new: true }
+  );
+
+  return updatedResource;
 };
 
 
+// Update existing file
 export const updateUserFileService = async (id, files) => {
   const userFound = await User.findById(id);
   if (!userFound) throw new Error('User not found');
 
-  if (!files?.userPDF?.length) throw new Error('PDF file is required');
+  const newFile = files.pdfFile[0];
 
-  const newPdf = files.userPDF[0];
-
-  if (userFound.pdfFile) {
-    const publicId = userFound.pdfFile.split('/').pop().split('.')[0];
-    await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+  // Delete previous file from Cloudinary if exists
+  if (userFound.fileUrl) {
+    const publicId = userFound.fileUrl.split('/').slice(-1)[0].split('.')[0];
+    await cloudinary.uploader.destroy(`user-files/${publicId}`, { 
+      resource_type: "auto" 
+    });
   }
 
   const sanitizedTitle = `${userFound._id}-${Date.now()}`;
 
-  const result = await cloudinaryUpload(newPdf.path, sanitizedTitle, "user-files", "raw");
-  if (!result?.url) throw new Error('Cloudinary upload failed');
+  const uploadResult = await cloudinaryUpload(
+    newFile.path, 
+    sanitizedTitle, 
+    "user-files"
+  );
+  
+  if (!uploadResult?.secure_url) throw new Error('File upload failed');
 
   const updatedUser = await User.findByIdAndUpdate(
     id,
-    { pdfFile: result.url },
+    { 
+      fileUrl: uploadResult.secure_url,
+      fileType: newFile.mimetype,
+      fileName: newFile.originalname,
+      fileSize: newFile.size
+    },
     { new: true }
   ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
 
   return updatedUser;
 };
 
-
+// Delete file
 export const deleteUserFileService = async (id) => {
   const userFound = await User.findById(id);
   if (!userFound) throw new Error('User not found');
-  if (!userFound.pdfFile) throw new Error('No file to delete');
+  if (!userFound.fileUrl) throw new Error('No file to delete');
 
-  const publicId = userFound.pdfFile.split('/').pop().split('.')[0];
+  const publicId = userFound.fileUrl.split('/').slice(-1)[0].split('.')[0];
 
-  try {
-    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-    if (result.result !== 'ok') throw new Error(`Cloudinary deletion failed: ${result.result}`);
-
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { pdfFile: '' },
-      { new: true }
-    ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-    return updatedUser;
-  } catch (error) {
-    console.error('Error in deleteUserFileService:', error);
-    throw error;
+  const deleteResult = await cloudinary.uploader.destroy(
+    `user-files/${publicId}`, 
+    { resource_type: "auto" }
+  );
+  
+  if (deleteResult.result !== "ok") {
+    throw new Error(`File deletion failed: ${deleteResult.result}`);
   }
-};
 
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { 
+      fileUrl: "",
+      fileType: "",
+      fileName: "",
+      fileSize: null
+    },
+    { new: true }
+  ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+
+  return updatedUser;
+};
 
 
 
