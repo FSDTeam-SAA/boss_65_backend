@@ -6,7 +6,7 @@ import contactRoutes from '../../entities/contact/contact.routes.js';
 import newsletterSubscriptionRoutes from '../../entities/newsletterSubscription/newsletterSubscription.routes.js'
 import reviewsRoutes from '../../entities/review/review.routes.js'
 import applicationRoutes from '../../entities/application/application.routes.js'
-
+import lenderRoutes from '../../entities/lender/Listings/lisitngs.routes.js'
 
 const router = express.Router();
 
@@ -18,6 +18,7 @@ router.use('/v1/contact', contactRoutes)
 router.use('/v1/newsletterSubscription', newsletterSubscriptionRoutes)
 router.use('/v1/reviews', reviewsRoutes)
 router.use('/v1/application', applicationRoutes)
+router.use('/v1/lender', lenderRoutes)
 
 
 export default router;
