@@ -8,7 +8,7 @@ const AddressSchema = new mongoose.Schema({
   country: { type: String, default: '' },
   cityState: { type: String, default: '' },
   roadArea: { type: String, default: '' },
-  postalCode: { type: String, required: true },
+  postalCode: { type: String, default: '' },
 }, { _id: false });
 
 const UserSchema = new mongoose.Schema(
@@ -57,7 +57,7 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true
     },
-    
+
     hasActiveSubscription: { type: Boolean, default: false },
     subscriptionExpireDate: { type: Date, default: null },
   },
