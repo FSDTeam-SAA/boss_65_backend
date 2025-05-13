@@ -1,5 +1,6 @@
 import listings from './listings.model.js';
 import { cloudinaryUpload } from "../../../lib/cloudinaryUpload.js";
+import { generateDressId } from '../../../lib/generateDressId.js';
 
 export const createDress = async (data,files) => {
   const uploadedMedia = [];
@@ -20,11 +21,12 @@ export const createDress = async (data,files) => {
       uploadedMedia.push(result.secure_url);
     }
   }
-
+  const dressId = generateDressId(data.dressName, data.brand);
   const dress = new listings({
     ...data,
     media: uploadedMedia,
-    lenderId: data.lenderId
+    lenderId: data.lenderId,
+    dressId: dressId
   });
 
   return await dress.save();
