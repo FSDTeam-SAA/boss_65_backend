@@ -1,5 +1,5 @@
 import { generateResponse } from '../../lib/responseFormate.js';
-import User from '../auth/auth.model.js';
+
 import * as ApplicationService from './application.service.js';
 
 export const newApplication = async (req, res) => {
@@ -54,32 +54,31 @@ export const deleteApplication = async (req, res) => {
 
 export const updateApplication = async (req, res) => {
     try {
-      const { id } = req.params;
-      const updateData = req.body;
-  
-      const application = await ApplicationService.updateApplication(id, updateData);
-  
-      const justApproved =
-        updateData.status === 'approved' && application.status === 'approved';
-  
-      let user = null;
-  
-      if (justApproved) {
-        // Create user + send email
-        user = await ApplicationService.createUserFromApplication(id);
-      }
-  
-      generateResponse(res, 200, true, 'Application updated successfully', {
-        application,
-        user: user || undefined,
-      });
+        const { id } = req.params;
+        const updateData = req.body;
+
+        const application = await ApplicationService.updateApplication(id, updateData);
+
+        const justApproved =
+            updateData.status === 'approved' && application.status === 'approved';
+
+        let user = null;
+
+        if (justApproved) {
+            // Create user + send email
+            user = await ApplicationService.updateApplication(id, updateData);
+        }
+
+        generateResponse(res, 200, true, 'Application updated successfully', {
+            application,
+            user: user || undefined,
+        });
     } catch (error) {
-      console.error('Error updating application:', error);
-      if (error.message === 'Application not found') {
-        generateResponse(res, 404, false, 'Application not found', null);
-      } else {
-        generateResponse(res, 500, false, 'Internal server error', null);
-      }
+        console.error('Error updating application:', error);
+        if (error.message === 'Application not found') {
+            generateResponse(res, 404, false, 'Application not found', null);
+        } else {
+            generateResponse(res, 500, false, 'Internal server error', null);
+        }
     }
-  };
-  
+};
