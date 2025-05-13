@@ -269,167 +269,89 @@ export const deleteMultipleAvatar = async (id) => {
 };
 
 
+
 export const uploadUserFileService = async (id, file) => {
-  if (!file) {
-    throw new Error("No file provided");
-  }
+  if (!file) throw new Error('No file provided');
 
-  const uploadedFile = await cloudinaryUpload(file.path, undefined, "user_files");
+  const uploadResult = await cloudinaryUpload(file.path, undefined, 'user-files');
 
-  if (uploadedFile === "file upload failed") {
-    throw new Error("Cloudinary upload failed");
-  }
-
-  const updatedResource = await User.findByIdAndUpdate(
-    id,
-    { pdfFile: uploadedFile.secure_url }, // or rename to `fileUrl` later
-    { new: true }
-  );
-
-  return updatedResource;
-};
-
-
-// Update existing file
-export const updateUserFileService = async (id, files) => {
-  const userFound = await User.findById(id);
-  if (!userFound) throw new Error('User not found');
-
-  const newFile = files.pdfFile[0];
-
-  // Delete previous file from Cloudinary if exists
-  if (userFound.fileUrl) {
-    const publicId = userFound.fileUrl.split('/').slice(-1)[0].split('.')[0];
-    await cloudinary.uploader.destroy(`user-files/${publicId}`, { 
-      resource_type: "auto" 
-    });
-  }
-
-  const sanitizedTitle = `${userFound._id}-${Date.now()}`;
-
-  const uploadResult = await cloudinaryUpload(
-    newFile.path, 
-    sanitizedTitle, 
-    "user-files"
-  );
-  
-  if (!uploadResult?.secure_url) throw new Error('File upload failed');
+  if (!uploadResult?.secure_url) throw new Error('Cloudinary upload failed');
 
   const updatedUser = await User.findByIdAndUpdate(
     id,
-    { 
-      fileUrl: uploadResult.secure_url,
-      fileType: newFile.mimetype,
-      fileName: newFile.originalname,
-      fileSize: newFile.size
+    {
+      file: {
+        url: uploadResult.secure_url,
+        type: file.mimetype,
+      },
     },
     { new: true }
-  ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+  ).select('-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires');
 
   return updatedUser;
 };
 
-// Delete file
+
+export const updateUserFileService = async (id, newFile) => {
+  const user = await User.findById(id);
+  if (!user) throw new Error('User not found');
+
+  // Delete old file from Cloudinary if it exists
+  const oldFileUrl = user.file?.url;
+  if (oldFileUrl) {
+    const publicId = oldFileUrl.split('/').pop().split('.')[0];
+    await cloudinary.uploader.destroy(`user-files/${publicId}`, { resource_type: 'auto' });
+  }
+
+  const sanitizedName = `${user._id}-${Date.now()}`;
+  const uploadResult = await cloudinaryUpload(newFile.path, sanitizedName, 'user-files');
+
+  if (!uploadResult?.secure_url) throw new Error('File upload failed');
+
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    {
+      file: {
+        url: uploadResult.secure_url,
+        type: newFile.mimetype,
+      },
+    },
+    { new: true }
+  ).select('-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires');
+
+  return updatedUser;
+};
+
+
 export const deleteUserFileService = async (id) => {
-  const userFound = await User.findById(id);
-  if (!userFound) throw new Error('User not found');
-  if (!userFound.fileUrl) throw new Error('No file to delete');
+  const user = await User.findById(id);
+  if (!user) throw new Error('User not found');
 
-  const publicId = userFound.fileUrl.split('/').slice(-1)[0].split('.')[0];
+  const fileUrl = user.file?.url;
+  if (!fileUrl) throw new Error('No file to delete');
 
-  const deleteResult = await cloudinary.uploader.destroy(
-    `user-files/${publicId}`, 
-    { resource_type: "auto" }
-  );
-  
-  if (deleteResult.result !== "ok") {
+  const publicId = fileUrl.split('/').pop().split('.')[0];
+
+  const deleteResult = await cloudinary.uploader.destroy(`user-files/${publicId}`, {
+    resource_type: 'auto',
+  });
+
+  if (deleteResult.result !== 'ok') {
     throw new Error(`File deletion failed: ${deleteResult.result}`);
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     id,
-    { 
-      fileUrl: "",
-      fileType: "",
-      fileName: "",
-      fileSize: null
+    {
+      file: {
+        url: '',
+        type: '',
+      },
     },
     { new: true }
-  ).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+  ).select('-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires');
 
   return updatedUser;
 };
 
-
-
-// export const createMultipleAvatar = async (id, files) => {
-//   const userFound = await User.findById(id);
-//   if (!userFound) {
-//     throw new Error('User not found');
-//   }
-
-//   if (!files || !files.multiProfileImage || files.multiProfileImage.length === 0) {
-//     throw new Error('Profile images are required');
-//   }
-
-//   const imageUrls = await Promise.all(files.multiProfileImage.map(async (image, index) => {
-//     const sanitizedTitle = `${userFound.fullName.toLowerCase().replace(/\s+/g, "-").replace(/[?&=]/g, "")}-${index}`;
-//     const imgUrl = await cloudinaryUpload(image.path, sanitizedTitle, "user-profile");
-//     if (imgUrl === "file upload failed") {
-//       throw new Error('File upload failed');
-//     }
-//     return imgUrl.url;
-//   }));
-
-//   const updatedUser = await User.findByIdAndUpdate(id, { multiProfileImage: imageUrls }, { new: true })
-//     .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-//   return updatedUser;
-// };
-
-
-// export const updateMultipleAvatar = async (id, files) => {
-//   const userFound = await User.findById(id);
-//   if (!userFound) {
-//     throw new Error('User not found');
-//   }
-
-//   if (!files || !files.multiProfileImage || files.multiProfileImage.length === 0) {
-//     throw new Error('Profile images are required');
-//   }
-
-//   const imageUrls = await Promise.all(files.multiProfileImage.map(async (image, index) => {
-//     const sanitizedTitle = `${userFound.fullName.toLowerCase().replace(/\s+/g, "-").replace(/[?&=]/g, "")}-${index}`;
-//     const imgUrl = await cloudinaryUpload(image.path, sanitizedTitle, "user-profile");
-//     if (imgUrl === "file upload failed") {
-//       throw new Error('File upload failed');
-//     }
-//     return imgUrl.url;
-//   }));
-
-//   const updatedUser = await User.findByIdAndUpdate(id, { multiProfileImage: imageUrls }, { new: true })
-//     .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-//   return updatedUser;
-// };
-
-
-// export const deleteMultipleAvatar = async (id) => {
-//   const userFound = await User.findById(id);
-//   if (!userFound) {
-//     throw new Error('User not found');
-//   }
-
-//   if (!userFound.multiProfileImage || userFound.multiProfileImage.length === 0) {
-//     throw new Error('No profile images to delete');
-//   }
-
-//   const publicIds = userFound.multiProfileImage.map((image) => image.split('/').pop().split('.')[0]);
-//   await Promise.all(publicIds.map((publicId) => cloudinary.uploader.destroy(publicId)));
-
-//   const updatedUser = await User.findByIdAndUpdate(id, { multiProfileImage: [] }, { new: true })
-//     .select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
-
-//   return updatedUser;
-// };  
 
