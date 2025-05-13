@@ -28,7 +28,7 @@ const RentalPriceSchema = new Schema({
 
 const ListingSchema = new Schema(
   {
-    lender: {
+    lenderId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -111,6 +111,19 @@ const ListingSchema = new Schema(
       type: String,
       enum: ['Local', 'Australia-wide', 'Both'],
       required: [true, 'Pickup option is required'],
+    },
+    approvalStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    reasonsForRejection: {
+      type: String,
+      default:''
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {
