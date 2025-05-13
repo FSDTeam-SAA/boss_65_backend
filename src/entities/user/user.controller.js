@@ -168,55 +168,50 @@ export const deleteMultipleAvatarController = async (req, res) => {
 };
 
 
-
 export const createUserfileController = async (req, res) => {
   try {
     const { id } = req.params;
-    const file = req.files?.pdfFile?.[0];
+    const file = req.files?.file?.[0];
 
-    const result = await uploadUserFileService(id, file);
-
-    res.status(200).json({
-      success: true,
-      message: "File uploaded successfully",
-      data: result,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "File upload failed",
-    });
-  }
-};
-
-
-
-
-// Update file
-export const updateUserfileController = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!req.files?.pdfFile || req.files.pdfFile.length === 0) {
+    if (!file) {
       return generateResponse(res, 400, false, 'File is required');
     }
 
-    const user = await updateUserFileService(id, req.files);
-    generateResponse(res, 200, true, 'File updated successfully', user);
+    const result = await uploadUserFileService(id, file);
+
+    return generateResponse(res, 200, true, 'File uploaded successfully', result);
   } catch (error) {
     console.error(error);
-    generateResponse(res, 500, false, 'Failed to update file', error.message);
+    return generateResponse(res, 500, false, 'File upload failed', error.message);
   }
 };
 
-// Delete file
+export const updateUserfileController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.files?.file?.[0];
+
+    if (!file) {
+      return generateResponse(res, 400, false, 'File is required');
+    }
+
+    const result = await updateUserFileService(id, file);
+
+    return generateResponse(res, 200, true, 'File updated successfully', result);
+  } catch (error) {
+    console.error(error);
+    return generateResponse(res, 500, false, 'Failed to update file', error.message);
+  }
+};
+
 export const deletefileController = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedUser = await deleteUserFileService(id);
-    generateResponse(res, 200, true, 'File deleted successfully', updatedUser);
+    const result = await deleteUserFileService(id);
+
+    return generateResponse(res, 200, true, 'File deleted successfully', result);
   } catch (error) {
     console.error(error);
-    generateResponse(res, 500, false, 'Failed to delete file', error.message);
+    return generateResponse(res, 500, false, 'Failed to delete file', error.message);
   }
 };

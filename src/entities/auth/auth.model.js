@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     phoneNumber: { type: String, default: '' },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    username: { type: String, unique: true },
+    username: { type: String, default: '' },
     dob: { type: Date, default: null },
     gender: {
       type: String,
@@ -37,7 +37,17 @@ const UserSchema = new mongoose.Schema(
 
     profileImage: { type: String, default: '' },
     multiProfileImage: { type: [String], default: [] },
-    pdfFile: { type: String, default: '' },
+
+    file: {
+      url: {
+        type: String,
+        default: ''
+      },
+      type: {
+        type: String,
+        default: ''
+      }
+    },
 
     otp: {
       type: String,
