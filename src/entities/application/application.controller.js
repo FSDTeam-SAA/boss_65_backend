@@ -36,18 +36,7 @@ export const getApplicationById = async (req, res) => {
         }
     }
 }
-export const updateApplication = async (req, res) => {
-    try {
-        const application = await ApplicationService.updateApplication(req.params.id, req.body);
-        generateResponse(res, 200, true, 'Application updated successfully', application);
-    } catch (error) {
-        if (error.message === 'Application not found') {
-            generateResponse(res, 404, false, 'Application not found', null);
-        } else {
-            generateResponse(res, 500, false, 'Internal server error', null);
-        }
-    }
-}
+
 export const deleteApplication = async (req, res) => {
     try {
         const application = await ApplicationService.deleteApplication(req.params.id);
@@ -63,15 +52,34 @@ export const deleteApplication = async (req, res) => {
 
 
 
-export const approveApplication = async (req, res) => {
+export const updateApplication = async (req, res) => {
     try {
-        const applicationId = req.params.id;
-
-        // Step 1: Call the service to create the user and send the email
-        const user = await ApplicationService.createUserFromApplication(applicationId);
-
-        generateResponse(res, 201, true, 'User profile created and email sent successfully', user);
+      const { id } = req.params;
+      const updateData = req.body;
+  
+      const application = await ApplicationService.updateApplication(id, updateData);
+  
+      const justApproved =
+        updateData.status === 'approved' && application.status === 'approved';
+  
+      let user = null;
+  
+      if (justApproved) {
+        // Create user + send email
+        user = await ApplicationService.createUserFromApplication(id);
+      }
+  
+      generateResponse(res, 200, true, 'Application updated successfully', {
+        application,
+        user: user || undefined,
+      });
     } catch (error) {
+      console.error('Error updating application:', error);
+      if (error.message === 'Application not found') {
+        generateResponse(res, 404, false, 'Application not found', null);
+      } else {
         generateResponse(res, 500, false, 'Internal server error', null);
+      }
     }
-};
+  };
+  
