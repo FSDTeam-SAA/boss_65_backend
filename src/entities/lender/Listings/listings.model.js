@@ -33,6 +33,11 @@ const ListingSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    dressId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     dressName: {
       type: String,
       required: [true, 'Dress name is required'],
