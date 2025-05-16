@@ -61,7 +61,9 @@ serviceSchema.pre("save", function(next) {
   next();
 });
 
+
 // Index to optimize queries for category and room
+// This will create a compound index on category and room in ascending order
 serviceSchema.index({ category: 1, room: 1 });
 
 const Service = mongoose.model("Service", serviceSchema);

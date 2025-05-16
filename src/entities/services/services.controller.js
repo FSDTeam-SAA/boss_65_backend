@@ -1,6 +1,7 @@
 import * as serviceService from "./services.service.js";
 import { generateResponse } from "../../lib/responseFormate.js";
 
+
 export const createService = async (req, res) => {
   try {
     const service = await serviceService.createServiceService(req.body);
@@ -10,6 +11,7 @@ export const createService = async (req, res) => {
   }
 };
 
+
 export const getAllServices = async (req, res) => {
   try {
     const services = await serviceService.getAllServicesService();
@@ -18,6 +20,7 @@ export const getAllServices = async (req, res) => {
     generateResponse(res, 500, false, "Failed to fetch services", error.message);
   }
 };
+
 
 export const getServiceById = async (req, res) => {
   try {
@@ -31,6 +34,7 @@ export const getServiceById = async (req, res) => {
   }
 };
 
+
 export const updateService = async (req, res) => {
   try {
     const updatedService = await serviceService.updateServiceService(req.params.id, req.body);
@@ -42,6 +46,7 @@ export const updateService = async (req, res) => {
     generateResponse(res, 400, false, "Failed to update service", error.message);
   }
 };
+
 
 export const deleteService = async (req, res) => {
   try {
