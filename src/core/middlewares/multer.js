@@ -11,10 +11,12 @@ const __dirname = path.dirname(__filename);
 // Create directories if they don't exist
 const uploadDir = resolve(__dirname, "../../../uploads");
 const imageDir = resolve(uploadDir, "images");
+const videoDir = resolve(uploadDir, "videos");
 const fileDir = resolve(uploadDir, "files");
 
 if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
 if (!existsSync(imageDir)) mkdirSync(imageDir, { recursive: true });
+if (!existsSync(videoDir)) mkdirSync(videoDir, { recursive: true })
 if (!existsSync(fileDir)) mkdirSync(fileDir, { recursive: true });
 
 // Set up storage engine for multer
@@ -22,7 +24,11 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
       cb(null, imageDir);
-    } else {
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, videoDir);    // for videos (and other files)
+    }
+
+    else {
       cb(null, fileDir);
     }
   },

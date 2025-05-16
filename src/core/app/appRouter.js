@@ -2,6 +2,7 @@ import express from 'express';
 import authRoutes from '../../entities/auth/auth.routes.js';
 import userRoutes from '../../entities/user/user.routes.js';
 import contactRoutes from '../../entities/contact/contact.routes.js';
+import cmsRoutes from '../../entities/admin/CMS/cms.routes.js' 
 
 
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
 router.use('/v1/auth', authRoutes);
 router.use('/v1/user', userRoutes);
 router.use('/v1/contact', contactRoutes)
+router.use('/v1/admin',cmsRoutes)
 
 
 
