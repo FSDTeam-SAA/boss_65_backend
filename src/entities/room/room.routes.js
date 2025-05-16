@@ -9,6 +9,7 @@ import {
 import { verifyToken, adminMiddleware } from "../../core/middlewares/authMiddleware.js";
 import { multerUpload } from "../../core/middlewares/multer.js";
 
+
 const router = express.Router();
 
 // Public routes
