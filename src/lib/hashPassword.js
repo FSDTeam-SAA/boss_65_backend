@@ -7,6 +7,7 @@ export const genSalt = async () => {
   return saltGenerated;
 };
 
+
 export const hashPassword = async (password) => {
   const saltGenerated = await genSalt();   
   const hashedPassword = await bcrypt.hash(password, saltGenerated); 

@@ -53,7 +53,7 @@ export const createBooking = async (data) => {
     status: 'pending'
   });
 
-  return await booking.save(); // Schema pre-hooks will handle validation
+  return await booking.save(); 
 };
 
 
@@ -85,20 +85,25 @@ export const getAllBookings = async (query = {}) => {
 };
 
 
-export const updateBooking = async (id, updates) => {
-  const booking = await Booking.findByIdAndUpdate(id, updates, {
-    new: true,
-    runValidators: true,
-  })
-    .populate({
-      path: 'service',
-      populate: {
-        path: 'room',
-      }
-    })
-    .populate('promoCode');
+export const updateBooking = async (id, status) => {
+  const allowedStatuses = ["pending", "confirmed", "cancelled", "refunded"];
 
-  if (!booking) throw new Error('Booking not found or update failed');
+  if (!allowedStatuses.includes(status)) {
+    throw new Error(`Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`);
+  }
+
+  const booking = await Booking.findByIdAndUpdate(
+    id,
+    { status },
+    { new: true, runValidators: true }
+  )
+    .populate({
+      path: "service",
+      populate: { path: "room" }
+    })
+    .populate("promoCode");
+
+  if (!booking) throw new Error("Booking not found or update failed");
   return booking;
 };
 

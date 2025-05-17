@@ -1,6 +1,4 @@
 
-import crypto from 'crypto';
-
 // Function to generate a random password
 export const generateRandomPassword = (length = 8) => {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

@@ -87,6 +87,7 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
+
 // Password comparison method (bcrypt)
 UserSchema.methods.comparePassword = async function (id, plainPassword) {
   const { password: hashedPassword } = await User.findById(id).select('password')
@@ -96,10 +97,12 @@ UserSchema.methods.comparePassword = async function (id, plainPassword) {
   return isMatched
 }
 
+
 // Generate ACCESS_TOKEN
 UserSchema.methods.generateAccessToken = function (payload) {
   return jwt.sign(payload, accessTokenSecrete, { expiresIn: accessTokenExpires });
 };
+
 
 // Generate REFRESH_TOKEN
 UserSchema.methods.generateRefreshToken = function (payload) {

@@ -31,7 +31,6 @@ router.get("/:id", getBlogById);
 
 router.post(
     "/create",
-    
     verifyToken, adminMiddleware,
      multerUpload([{ name: "thumbnail", maxCount: 1 }]),
     createBlog

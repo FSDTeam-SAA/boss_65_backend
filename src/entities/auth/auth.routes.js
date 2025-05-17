@@ -11,7 +11,9 @@ import {
 } from './auth.controller.js';
 import { userAdminLenderMiddleware } from '../../core/middlewares/authMiddleware.js';
 
+
 const router = express.Router();
+
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);

@@ -2,19 +2,18 @@ import mongoose, { Schema } from "mongoose";
 
 const contactSchema = new Schema(
   {
-    firstName: {
+    name: {
       type: String,
       required: true,
       trim: true
     },
-    lastName: {
+    email: {
       type: String,
       required: true,
-      trim: true
-    },
-    address: {
-      type: String,
-      trim: true
+      trim: true,
+      lowercase: true,
+      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      unique: true
     },
     phoneNumber: {
         type: String,
