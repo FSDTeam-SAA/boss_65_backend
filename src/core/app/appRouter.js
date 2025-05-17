@@ -7,6 +7,8 @@ import categoryRoutes from '../../entities/category/category.routes.js';
 import roomRoutes from '../../entities/room/room.routes.js';
 import serviceRoutes from '../../entities/services/services.routes.js';
 import bookingRoutes from '../../entities/booking/booking.routes.js';
+import promoCodeRoutes from '../../entities/promo_code/promo_code.routes.js';
+
 
 
 const router = express.Router();
@@ -20,6 +22,8 @@ router.use('/v1/category', categoryRoutes);
 router.use('/v1/room', roomRoutes);
 router.use('/v1/service', serviceRoutes);
 router.use('/v1/booking', bookingRoutes);
+router.use('/v1/promo-codes', promoCodeRoutes);
+
 
 
 

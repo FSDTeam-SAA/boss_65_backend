@@ -14,4 +14,5 @@ const lenderCredentialsTemplate = (name, email, password) => `
     </footer>
   </div>
 `;
+
 export default lenderCredentialsTemplate;

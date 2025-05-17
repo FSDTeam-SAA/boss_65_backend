@@ -28,7 +28,7 @@ export const getCategoryById = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   try {
-    console.log(req.body);
+    //console.log(req.body);
     const { name } = req.body;
     const file = req.files?.image?.[0];
 
@@ -39,7 +39,7 @@ export const createCategory = async (req, res) => {
       if (result?.secure_url) image = result.secure_url;
 
     }
-    console.log(name)
+
     const category = await categoryService.createCategoryService({
       name,
       image: image,

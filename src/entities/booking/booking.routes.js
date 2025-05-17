@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Public
 router.post('/', createBooking); 
-router.get('/', getAllBookings);
+router.get('/', verifyToken, adminMiddleware, getAllBookings);
 router.get('/:id', getBookingById);
 
 // Admin Only
