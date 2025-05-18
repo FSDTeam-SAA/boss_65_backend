@@ -1,5 +1,5 @@
 import CMS from "./cms.model.js";
-import { cloudinaryUpload } from "../../../lib/cloudinaryUpload.js";
+import { cloudinaryDelete, cloudinaryUpload } from "../../../lib/cloudinaryUpload.js";
 
 
 export const uploadCmsAssetService = async ({ file, title, section }) => {
@@ -14,6 +14,19 @@ export const uploadCmsAssetService = async ({ file, title, section }) => {
         throw new Error("Cloudinary upload failed");
     }
 
+     //  delete duplicate banner from db if already exists
+  if (section === "banner") {
+    const existingBanner = await CMS.findOne({ section: "banner" });
+    if (existingBanner) {
+      await CMS.deleteOne({ _id: existingBanner._id });
+
+      // delete from Cloudinary too
+      if (existingBanner.public_id) {
+        await cloudinaryDelete(existingBanner.public_id); // <== you need to implement this
+      }
+    }
+  }
+
     const cmsEntry = await CMS.create({
         title,
         section,
@@ -25,8 +38,8 @@ export const uploadCmsAssetService = async ({ file, title, section }) => {
     return cmsEntry;
 };
 
-export const getAllCmsAssetsService = async () => {
-    return await CMS.find().sort({ createdAt: -1 });
+export const getAllCmsAssetsService = async (filter={}) => {
+    return await CMS.find(filter).sort({ createdAt: -1 });
 };
 
 export const toggleCmsAssetStatusService = async (cmsId) => {

@@ -35,7 +35,7 @@ const cmsSchema = new mongoose.Schema(
     section: {
       type: String,
       required: true,
-      enum: ["gallery", "hero", "testimonial", "alert", "banner", "blog", "faq"],
+      enum: ["gallery", "hero", "testimonial", "alert", "banner", "blog", "faq","footer"],
     },
     type: {
       type: String,
