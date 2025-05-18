@@ -21,17 +21,17 @@ import { generateResponse } from "../../../lib/responseFormate.js";
 
 // POST /api/admin/cms/upload
 export const uploadCmsAsset = asyncHandler(async (req, res) => {
-    const { title, section } = req.body;
+    const {section } = req.body;
     const files = req.files?.file;
   
-    if (!title || !section || !files || files.length === 0) {
+    if (!section || !files || files.length === 0) {
       res.status(400);
       throw new Error("Title, section, and at least one file are required");
     }
   
     // Upload all files and collect results
     const uploadPromises = files.map((file) =>
-      uploadCmsAssetService({ file, title, section })
+      uploadCmsAssetService({ file,section })
     );
   
     const assets = await Promise.all(uploadPromises);
@@ -42,9 +42,25 @@ export const uploadCmsAsset = asyncHandler(async (req, res) => {
 
 // GET /api/admin/cms
 export const getAllCmsAssets = asyncHandler(async (req, res) => {
-  const assets = await getAllCmsAssetsService();
-  res.status(200).json({ success: true, assets });
-});
+  
+    const { section ,type} = req.query;
+  
+    const filter = {};
+    if (section) {
+      filter.section = section;
+    }
+  if(type) filter.type=type;
+    const assets = await getAllCmsAssetsService(filter);
+    
+  
+   
+    if (assets.length === 0) {
+      generateResponse
+        (res, 404, false, "No assets found for the given section");
+    } else {
+      generateResponse(res, 200, true, "Fetched assets", assets);
+    }
+  })
 
 // PATCH /api/admin/cms/:id/toggle
 export const toggleCmsAssetStatus = asyncHandler(async (req, res) => {

@@ -1,24 +1,24 @@
 import mongoose from "mongoose";
 
 const blogSchema = new mongoose.Schema(
-    {
-        title: {
-          type: String,
-          required: true,
-          trim: true
-        },
-        description: {
-          type: String,
-          default: ""
-        },
-        thumbnail: {
-            type: String,
-        },
-      },
-      {
-        timestamps: true
-      },
-  
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    description: {
+      type: String,
+      default: ""
+    },
+    thumbnail: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true
+  },
+
 );
 
 const faqSchema = new mongoose.Schema(
@@ -31,16 +31,16 @@ const faqSchema = new mongoose.Schema(
 
 const cmsSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String },
     section: {
       type: String,
       required: true,
-      enum: ["gallery", "hero", "testimonial", "alert", "banner", "blog", "faq"],
+      enum: ["gallery", "hero", "testimonial", "alert", "banner", "blog", "faq", "footer"],
     },
     type: {
       type: String,
       enum: ["image", "video", "text"],
-      
+
     },
     url: {
       type: String,
@@ -53,10 +53,10 @@ const cmsSchema = new mongoose.Schema(
       default: true,
     },
 
-   
+
     blog: blogSchema,
 
-    
+
     faqs: [faqSchema],
   },
   { timestamps: true }

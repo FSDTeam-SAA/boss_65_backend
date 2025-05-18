@@ -5,7 +5,7 @@ import { cloudinaryUpload } from "../../lib/cloudinaryUpload.js";
 
 export const createRoom = async (req, res) => {
   try {
-    const { title, category, maxCapacity, status } = req.body;
+    const { title,maxCapacity,status } = req.body;
     const file = req.files?.image?.[0];
 
     if (!file) {
@@ -16,7 +16,7 @@ export const createRoom = async (req, res) => {
 
     const room = await roomService.createRoomService({
       title,
-      category,
+
       maxCapacity,
       status,
       image: uploadResult.secure_url
@@ -54,12 +54,12 @@ export const getRoomById = async (req, res) => {
 
 export const updateRoom = async (req, res) => {
   try {
-    const { title, category, maxCapacity, status } = req.body;
+    const { title,  maxCapacity, status } = req.body;
     const file = req.files?.image?.[0];
 
     let updateData = {};
     if (title) updateData.title = title;
-    if (category) updateData.category = category;
+    
     if (maxCapacity) updateData.maxCapacity = maxCapacity;
     if (status) updateData.status = status;
 
