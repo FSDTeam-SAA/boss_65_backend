@@ -13,11 +13,7 @@ const roomSchema = new Schema(
       required: true,
       trim: true 
     },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
-      required: true
-    },
+   
     maxCapacity: {
       type: Number,
       required: true,
