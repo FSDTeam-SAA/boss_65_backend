@@ -21,17 +21,17 @@ import { generateResponse } from "../../../lib/responseFormate.js";
 
 // POST /api/admin/cms/upload
 export const uploadCmsAsset = asyncHandler(async (req, res) => {
-    const { title, section } = req.body;
+    const {section } = req.body;
     const files = req.files?.file;
   
-    if (!title || !section || !files || files.length === 0) {
+    if (!section || !files || files.length === 0) {
       res.status(400);
       throw new Error("Title, section, and at least one file are required");
     }
   
     // Upload all files and collect results
     const uploadPromises = files.map((file) =>
-      uploadCmsAssetService({ file, title, section })
+      uploadCmsAssetService({ file,section })
     );
   
     const assets = await Promise.all(uploadPromises);

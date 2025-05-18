@@ -28,7 +28,7 @@ export const uploadCmsAssetService = async ({ file, title, section }) => {
   }
 
     const cmsEntry = await CMS.create({
-        title,
+        
         section,
         type: uploaded.resource_type === "video" ? "video" : "image",
         url: uploaded.secure_url,

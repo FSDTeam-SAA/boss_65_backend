@@ -28,7 +28,7 @@ export const cloudinaryUpload = async (filePath, public_id, folder) => {
 export const cloudinaryDelete = async (public_id) => {
   try {
     const result = await cloudinary.uploader.destroy(public_id, {
-      resource_type: "auto",
+      resource_type: "image",
     });
 
     return result;
