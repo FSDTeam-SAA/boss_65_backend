@@ -12,18 +12,23 @@ const bookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Room",
         required: true
-      },
+    },
+    promoCode: {
+        type: String,
+        default: null
+    }
+    ,
     date: {
         type: Date,
         required: true
     },
     timeSlots: [
         {
-          start: { type: String, required: true },
-          end: { type: String, required: true }
+            start: { type: String, required: true },
+            end: { type: String, required: true }
         }
-      ]
-      ,
+    ]
+    ,
     service: {
         type: Schema.Types.ObjectId,
         ref: 'Service',
@@ -45,12 +50,12 @@ const bookingSchema = new Schema({
     refundId: {
         type: String,
         default: null
-      },
+    },
     refundedAt: {
         type: Date,
         default: null,
     },
-  
+
     paymentStatus: {
         type: String,
         enum: ['pending', 'paid', 'failed', 'refunded'],
