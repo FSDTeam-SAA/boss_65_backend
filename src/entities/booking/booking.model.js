@@ -14,9 +14,10 @@ const bookingSchema = new Schema({
         required: true
     },
     promoCode: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PromoCode',
         default: null
-    }
+      }
     ,
     date: {
         type: Date,
