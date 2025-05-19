@@ -34,8 +34,6 @@ const paymentSchema = new Schema({
 });
 
 // Indexes
-paymentSchema.index({ user: 1 });
-paymentSchema.index({ visit: 1 });
 paymentSchema.index({ status: 1 });
 
 export const Payment = mongoose.model("Payment", paymentSchema);
