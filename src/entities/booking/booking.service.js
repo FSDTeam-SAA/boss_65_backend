@@ -1,115 +1,207 @@
-// import Booking from './booking.model.js';
-// import Service from '../services/services.model.js';
-// import PromoCode from '../promo_code/promo_code.model.js';
+import PromoCode from '../promo_code/promo_code.model.js';
 
 
-// export const createBooking = async (data) => {
-//   const {
-//     user,
-//     date,
-//     timeSlot,
-//     service,
-//     promoCode,
-//   } = data;
+import Booking from './booking.model.js';
+import Service from '../admin/Services/createServices.model.js';
+import { slotGenerator } from '../../lib/slotGenerator.js';
 
-//   if (
-//     !user ||
-//     !user.firstName ||
-//     !user.lastName ||
-//     !user.email ||
-//     !user.phone ||
-//     typeof user.numberOfPeople !== 'number'
-//   ) {
-//     throw new Error('User information is incomplete or invalid');
-//   }
-  
-//   // Fetch the service and its associated room
-//   const selectedService = await Service.findById(service).populate('room');
-//   if (!selectedService) throw new Error('Service not found');
-//   if (!selectedService.room) throw new Error('Service has no associated room');
+export const createBookingService = async (data) => {
+    const {
+        user,
+        date,
+        timeSlots,
+        service: serviceId,
+        room,
+        promoCode,
+        numberOfPeople,
+    } = data;
 
-//   const room = selectedService.room;
+    // Validate date
+    const bookingDate = new Date(date);
+    if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
 
-//   // Promo code validation
-//   let discount = 0;
-//   let validPromo = null;
-//   if (promoCode) {
-//     const promo = await PromoCode.findById(promoCode);
-//     if (promo && promo.active) {
-//       discount = promo.discountAmount || 0;
-//       validPromo = promo._id;
-//     }
-//   }
+    const service = await Service.findById(serviceId);
+    if (!service) throw new Error('Service not found');
 
-//   const total = Math.max(selectedService.price - discount, 0);
+    // STEP 1: Check if selected slots are still available
+    const availableSlots = await checkAvailabilityService(date, serviceId);
 
-//   const booking = new Booking({
-//     user,
-//     date,
-//     timeSlot,
-//     service,
-//     promoCode: validPromo,
-//     total,
-//     status: 'pending'
-//   });
+    for (let requestedSlot of timeSlots) {
+        const match = availableSlots.find(
+            slot =>
+                slot.start === requestedSlot.start &&
+                slot.end === requestedSlot.end &&
+                slot.available === true
+        );
+        if (!match) {
+            throw new Error(`Slot ${requestedSlot.start} - ${requestedSlot.end} is no longer available.`);
+        }
+    }
 
-//   return await booking.save(); 
-// };
+    // STEP 2: Calculate total price based on duration
+    const durationPerSlot = service.slotDurationHours; // in hours
+    const basePricePerHour = service.pricePerSlot || 0;
+    const totalHours = timeSlots.length * durationPerSlot;
+    let total = basePricePerHour * totalHours;
 
+    // STEP 3: Apply promo code if applicable
+    let appliedPromo = null;
+    if (promoCode) {
+        const promo = await PromoCode.findOne({ code: promoCode, active: true });
+        if (!promo) throw new Error('Invalid promo code');
 
-// export const getBookingById = async (id) => {
-//   const booking = await Booking.findById(id)
-//     .populate({
-//       path: 'service',
-//       populate: {
-//         path: 'room',
-//       }
-//     })
-//     .populate('promoCode');
+        if (promo.expiresAt && promo.expiresAt < new Date()) {
+            throw new Error('Promo code expired');
+        }
 
-//   if (!booking) throw new Error('Booking not found');
-//   return booking;
-// };
+        if (promo.discountType === 'Percentage') {
+            total = total - total * (promo.discountValue / 100);
+        } else if (promo.discountType === 'fixed') {
+            total = total - promo.discountValue;
+        }
 
+        if (total < 0) total = 0;
+        appliedPromo = promo._id;
+    }
 
-// export const getAllBookings = async (query = {}) => {
-//   return await Booking.find(query)
-//     .sort({ createdAt: -1 })
-//     .populate({
-//       path: 'service',
-//       populate: {
-//         path: 'room',
-//       }
-//     })
-//     .populate('promoCode');
-// };
+    // STEP 4: Create Booking
+    const booking = await Booking.create({
+        user: {
+            ...user,
+            numberOfPeople
+        },
+        date: bookingDate,
+        timeSlots,
+        service: serviceId,
+        room,
+        total,
+        status: 'pending',
+        paymentStatus: 'pending',
+        promoCode: appliedPromo || undefined,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+    });
 
+    return booking;
+};
 
-// export const updateBooking = async (id, status) => {
-//   const allowedStatuses = ["pending", "confirmed", "cancelled", "refunded"];
-
-//   if (!allowedStatuses.includes(status)) {
-//     throw new Error(`Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`);
-//   }
-
-//   const booking = await Booking.findByIdAndUpdate(
-//     id,
-//     { status },
-//     { new: true, runValidators: true }
-//   )
-//     .populate({
-//       path: "service",
-//       populate: { path: "room" }
-//     })
-//     .populate("promoCode");
-
-//   if (!booking) throw new Error("Booking not found or update failed");
-//   return booking;
-// };
+;
 
 
-// export const deleteBooking = async (id) => {
-//   const deleted = await Booking.findByIdAndDelete(id);
-//   if (!deleted) throw new Error('Booking not found or already deleted');
-//   return true;
-// };
+
+export const getBookingById = async (id) => {
+    const booking = await Booking.findById(id)
+        .populate({
+            path: 'service',
+            populate: {
+                path: 'room',
+            }
+        })
+        .populate('promoCode');
+
+    if (!booking) throw new Error('Booking not found');
+    return booking;
+};
+
+
+export const getAllBookings = async (query = {}) => {
+    return await Booking.find(query)
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'service',
+            populate: {
+                path: 'room',
+            }
+        })
+        .populate('promoCode');
+};
+
+
+export const updateBooking = async (id, status) => {
+    const allowedStatuses = ["pending", "confirmed", "cancelled", "refunded"];
+
+    if (!allowedStatuses.includes(status)) {
+        throw new Error(`Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`);
+    }
+
+    const booking = await Booking.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true, runValidators: true }
+    )
+        .populate({
+            path: "service",
+            populate: { path: "room" }
+        })
+        .populate("promoCode");
+
+    if (!booking) throw new Error("Booking not found or update failed");
+    return booking;
+};
+
+
+export const deleteBooking = async (id) => {
+    const deleted = await Booking.findByIdAndDelete(id);
+    if (!deleted) throw new Error('Booking not found or already deleted');
+    return true;
+};
+
+
+
+
+
+// generating time slots and checking the time slots are availabel or not
+export const checkAvailabilityService = async (date, serviceId) => {
+    const service = await Service.findById(serviceId);
+    // console.log('Service:', service);
+    if (!service) throw new Error('Service not found');
+
+    const bookingDate = new Date(date);
+    console.log('Booking Date:', bookingDate);
+    if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
+
+    const weekday = bookingDate.toLocaleDateString('en-SG', { weekday: 'short' });
+
+    if (!service.availableDays.includes(weekday)) {
+        throw new Error(`Service not available on ${weekday}`);
+    }
+
+    // Generate slots
+    const slots = slotGenerator(
+        date,
+        service.timeRange.start,
+        service.timeRange.end,
+        service.slotDurationHours,
+        60 // stepMinutes
+    );
+    console.log('Generated Slots:', slots);
+
+    // Find bookings for the whole day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingBookings = await Booking.find({
+        date: { $gte: startOfDay, $lte: endOfDay },
+        service: serviceId,
+        status: { $in: ['pending', 'confirmed'] }
+    });
+
+    if (existingBookings.length === 0) {
+        // No bookings found, return all slots available
+        return slots.map(slot => ({ ...slot, available: true }));
+    }
+
+    // Flatten booked slots from bookings
+    const bookedSlots = existingBookings.flatMap(b => b.timeSlots);
+
+    // Mark slots as available or booked
+    const availableSlots = slots.map(slot => {
+        const isBooked = bookedSlots.some(
+            (b) => slot.start < b.end && slot.end > b.start
+        );
+        return { ...slot, available: !isBooked };
+    });
+
+    return availableSlots;
+};
