@@ -1,7 +1,8 @@
 // import Booking from './booking.model.js';
 // import Service from '../services/services.model.js';
 // import PromoCode from '../promo_code/promo_code.model.js';
-
+import Booking from '../booking/booking.model.js';
+import Service from '../admin/Services/createServices.model.js';
 
 // export const createBooking = async (data) => {
 //   const {
@@ -113,3 +114,64 @@
 //   if (!deleted) throw new Error('Booking not found or already deleted');
 //   return true;
 // };
+
+
+
+
+
+// generating time slots and checking the time slots are availabel or not
+export const checkAvailabilityService = async (date, serviceId) => {
+    const service = await Service.findById(serviceId);
+    // console.log('Service:', service);
+    if (!service) throw new Error('Service not found');
+  
+    const bookingDate = new Date(date);
+    console.log('Booking Date:', bookingDate);
+    if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
+  
+    const weekday = bookingDate.toLocaleDateString('en-SG', { weekday: 'short' });
+  
+    if (!service.availableDays.includes(weekday)) {
+      throw new Error(`Service not available on ${weekday}`);
+    }
+  
+    // Generate slots
+    const slots = slotGenerator(
+      date,
+      service.timeRange.start,
+      service.timeRange.end,
+      service.slotDurationHours,
+      60 // stepMinutes
+    );
+    console.log('Generated Slots:', slots);
+  
+    // Find bookings for the whole day
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+  
+    const existingBookings = await Booking.find({
+      date: { $gte: startOfDay, $lte: endOfDay },
+      service: serviceId,
+      status: { $in: ['pending', 'confirmed'] }
+    });
+  
+    if (existingBookings.length === 0) {
+      // No bookings found, return all slots available
+      return slots.map(slot => ({ ...slot, available: true }));
+    }
+  
+    // Flatten booked slots from bookings
+    const bookedSlots = existingBookings.flatMap(b => b.timeSlots);
+  
+    // Mark slots as available or booked
+    const availableSlots = slots.map(slot => {
+      const isBooked = bookedSlots.some(
+        (b) => slot.start < b.end && slot.end > b.start
+      );
+      return { ...slot, available: !isBooked };
+    });
+  
+    return availableSlots;
+  };

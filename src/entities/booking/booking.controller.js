@@ -2,6 +2,8 @@
 // import { generateResponse } from '../../lib/responseFormate.js';
 
 
+
+
 // export const createBooking = async (req, res) => {
 //   try {
 //     const booking = await bookingService.createBooking(req.body);
@@ -55,3 +57,23 @@
 //     return generateResponse(res, 400, false, error.message, null);
 //   }
 // };
+
+
+
+// controllers/booking.controller.js
+import  {checkAvailabilityService } from './booking.service.js';
+
+export const checkAvailabilityController = async (req, res) => {
+    try {
+      const { date, serviceId } = req.body;
+  
+      if (!date || !serviceId) {
+        return res.status(400).json({ error: 'date and serviceId are required' });
+      }
+  
+      const slots = await checkAvailabilityService(date, serviceId);
+      return res.status(200).json({ slots });
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  };

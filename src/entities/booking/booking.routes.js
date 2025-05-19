@@ -21,3 +21,13 @@
 
 // export default router;
 
+// routes/booking.routes.js
+import express from 'express';
+import { checkAvailabilityController } from './booking.controller.js';
+
+
+const router = express.Router();
+
+router.post('/check-availability', checkAvailabilityController);
+
+export default router;
