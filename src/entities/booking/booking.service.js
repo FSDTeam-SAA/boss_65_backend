@@ -1,9 +1,8 @@
 import PromoCode from '../promo_code/promo_code.model.js';
-
-
 import Booking from './booking.model.js';
 import Service from '../admin/Services/createServices.model.js';
 import { slotGenerator } from '../../lib/slotGenerator.js';
+
 
 export const createBookingService = async (data) => {
     const {
@@ -80,12 +79,8 @@ export const createBookingService = async (data) => {
         promoCode: appliedPromo || undefined,
         expiresAt: new Date(Date.now() + 15 * 60 * 1000)
     });
-
     return booking;
 };
-
-;
-
 
 
 export const getBookingById = async (id) => {
@@ -144,9 +139,6 @@ export const deleteBooking = async (id) => {
     if (!deleted) throw new Error('Booking not found or already deleted');
     return true;
 };
-
-
-
 
 
 // generating time slots and checking the time slots are availabel or not

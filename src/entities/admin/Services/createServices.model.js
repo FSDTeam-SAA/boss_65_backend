@@ -1,11 +1,9 @@
 import mongoose ,{ Schema } from "mongoose";
 
 
-
 const serviceSchema = new mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   
-
   name: { type: String, required: true }, // "Early Bird", etc.
 
   availableDays: [{
@@ -25,6 +23,7 @@ const serviceSchema = new mongoose.Schema({
 
   description: { type: String }
 });
+
 
 const Service = mongoose.model('Service', serviceSchema);
 export default Service;

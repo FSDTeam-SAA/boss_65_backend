@@ -1,5 +1,5 @@
-
 import { generateResponse } from '../../lib/responseFormate.js';
+
 
 export const createBookingController = async (req, res) => {
     try {
@@ -45,10 +45,6 @@ export const createBookingController = async (req, res) => {
         return res.status(400).json({ message: error.message || 'Booking failed' });
     }
 };
-
-
-
-
 
 
 export const getAllBookings = async (req, res) => {
