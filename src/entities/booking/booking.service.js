@@ -54,7 +54,7 @@ export const createBookingService = async (data) => {
             throw new Error('Promo code expired');
         }
 
-        if (promo.discountType === 'percent') {
+        if (promo.discountType === 'Percentage') {
             total = total - total * (promo.discountValue / 100);
         } else if (promo.discountType === 'fixed') {
             total = total - promo.discountValue;
