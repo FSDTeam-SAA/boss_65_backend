@@ -40,7 +40,7 @@ export const createBookingService = async (data) => {
 
     // STEP 2: Calculate total price based on duration
     const durationPerSlot = service.slotDurationHours; // in hours
-    const basePricePerHour = service.pricePerHour || 0;
+    const basePricePerHour = service.pricePerSlot || 0;
     const totalHours = timeSlots.length * durationPerSlot;
     let total = basePricePerHour * totalHours;
 
