@@ -16,20 +16,11 @@ const router = express.Router();
 router.post('/', createBookingController); 
 router.get('/', verifyToken, adminMiddleware, getAllBookings);
 router.get('/:id', getBookingById);
+router.post('/check-availability', checkAvailabilityController);
 
 // Admin Only
 router.put('/:id', verifyToken, adminMiddleware, updateBooking);
 router.delete('/:id', verifyToken, adminMiddleware, deleteBooking);
 
-
-
-
-
-
-
-
-;
-
-router.post('/check-availability', checkAvailabilityController);
 
 export default router;
