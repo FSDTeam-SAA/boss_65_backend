@@ -143,12 +143,13 @@ export const deleteBooking = async (id) => {
 
 // generating time slots and checking the time slots are availabel or not
 export const checkAvailabilityService = async (date, serviceId) => {
+    
     const service = await Service.findById(serviceId);
     // console.log('Service:', service);
     if (!service) throw new Error('Service not found');
 
     const bookingDate = new Date(date);
-    console.log('Booking Date:', bookingDate);
+    //console.log('Booking Date:', bookingDate);
     if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
 
     const weekday = bookingDate.toLocaleDateString('en-SG', { weekday: 'short' });

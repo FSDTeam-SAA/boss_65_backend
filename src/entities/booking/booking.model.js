@@ -17,8 +17,7 @@ const bookingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PromoCode',
         default: null
-    }
-    ,
+    },
     date: {
         type: Date,
         required: true
@@ -59,7 +58,6 @@ const bookingSchema = new Schema({
         type: Date,
         default: null,
     },
-
     paymentStatus: {
         type: String,
         enum: ['pending', 'paid', 'failed', 'refunded'],

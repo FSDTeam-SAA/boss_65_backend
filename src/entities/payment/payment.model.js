@@ -11,10 +11,10 @@ const paymentSchema = new Schema({
         required: true,
         get: v => parseFloat(v.toFixed(2))
     },
-    status: {
+    paymentStatus: {
         type: String,
-        enum: ["pending", "completed", "failed", "refunded"],
-        default: "pending",
+        enum: ['pending', 'paid', 'failed', 'refunded'],
+        default: 'pending',
     },
     stripeSessionId: { type: String },
     transactionId: {
@@ -34,8 +34,6 @@ const paymentSchema = new Schema({
 });
 
 // Indexes
-paymentSchema.index({ user: 1 });
-paymentSchema.index({ visit: 1 });
 paymentSchema.index({ status: 1 });
 
 export const Payment = mongoose.model("Payment", paymentSchema);
