@@ -1,26 +1,38 @@
-const dayjs = require('dayjs');
+export function slotGenerator(date, start, end, slotDurationHours, stepMinutes = 60) {
+  console.log('Date:', date);
+  console.log('Start:', start);
+  console.log('End:', end);
+  console.log('Slot Duration (hours):', slotDurationHours);
+  console.log('Step Minutes:', stepMinutes);
+  const slots = [];
 
-
-function generateOverlappingTimeSlots(dateString, start, end, slotDurationHours, stepMinutes = 60) {
-    const slots = [];
-  
-    let startTime = dayjs(`${dateString}T${start}`);
-    const endTime = dayjs(`${dateString}T${end}`);
-    const duration = slotDurationHours * 60;
-  
-    while (startTime.add(duration, 'minute').isSameOrBefore(endTime)) {
-      const slotStart = startTime.format('HH:mm');
-      const slotEnd = startTime.add(duration, 'minute').format('HH:mm');
-  
-      slots.push({ start: slotStart, end: slotEnd });
-  
-      // move forward by step (e.g., 1 hour or 30 minutes)
-      startTime = startTime.add(stepMinutes, 'minute');
-    }
-  
-    return slots;
+  // Convert "HH:mm" to total minutes from midnight
+  function timeToMinutes(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
   }
-  
 
-const slotGenerator = { generateOverlappingTimeSlots };
-export default slotGenerator;
+  // Convert total minutes back to "HH:mm"
+  function minutesToTime(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  }
+
+  const startMins = timeToMinutes(start);
+  const endMins = timeToMinutes(end);
+  const slotDurationMins = slotDurationHours * 60;
+
+  let currentStart = startMins;
+
+  while (currentStart + slotDurationMins <= endMins) {
+    const slotStart = minutesToTime(currentStart);
+    const slotEnd = minutesToTime(currentStart + slotDurationMins);
+
+    slots.push({ start: slotStart, end: slotEnd });
+
+    currentStart += stepMinutes;
+  }
+
+  return slots;
+}
