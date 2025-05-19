@@ -1,4 +1,5 @@
 import { generateResponse } from '../../lib/responseFormate.js';
+import { checkAvailabilityService, createBookingService } from './booking.service.js';
 
 
 export const createBookingController = async (req, res) => {
@@ -91,10 +92,6 @@ export const deleteBooking = async (req, res) => {
     }
 };
 
-
-
-// controllers/booking.controller.js
-import { checkAvailabilityService, createBookingService } from './booking.service.js';
 
 export const checkAvailabilityController = async (req, res) => {
     try {

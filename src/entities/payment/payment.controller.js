@@ -1,7 +1,9 @@
 import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 import Booking from '../booking/booking.model.js';
 import { Payment } from './payment.model.js';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 export const payment = async (req, res) => {
   const { booking: bookingId } = req.body;
@@ -16,7 +18,7 @@ export const payment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Booking not found.' });
     }
 
-    const total = booking.total; // Use total from booking
+    const total = booking.total; 
     const totalPriceInCent = total * 100;
 
     const session = await stripe.checkout.sessions.create({
@@ -47,7 +49,7 @@ export const payment = async (req, res) => {
     });
     await newPayment.save();
 
-    // ✅ Update booking with session ID
+    // Update booking with session ID
     booking.stripeSessionId = session.id;
     await booking.save();
 
@@ -61,6 +63,7 @@ export const payment = async (req, res) => {
   }
 };
 
+
 export const updatePaymentStatus = async (req, res) => {
   const { stripeSessionId } = req.query;
 
@@ -71,7 +74,7 @@ export const updatePaymentStatus = async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
 
-    let paymentStatus = session?.payment_status === 'paid' ? 'completed' : 'failed';
+    let paymentStatus = session?.payment_status === 'paid' ? 'paid' : 'failed';
 
     // Update Payment record
     const payment = await Payment.findOneAndUpdate(
@@ -88,7 +91,7 @@ export const updatePaymentStatus = async (req, res) => {
     const booking = await Booking.findByIdAndUpdate(
       payment.booking,
       {
-        status: paymentStatus === 'completed' ? 'confirmed' : 'cancelled',
+        status: paymentStatus === 'paid' ? 'confirmed' : 'cancelled',
         paymentStatus: paymentStatus,
       },
       { new: true }
@@ -102,7 +105,8 @@ export const updatePaymentStatus = async (req, res) => {
         booking,
       },
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.error('Error updating payment status:', error);
     res.status(500).json({
       success: false,

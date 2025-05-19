@@ -11,10 +11,10 @@ const paymentSchema = new Schema({
         required: true,
         get: v => parseFloat(v.toFixed(2))
     },
-    status: {
+    paymentStatus: {
         type: String,
-        enum: ["pending", "completed", "failed", "refunded"],
-        default: "pending",
+        enum: ['pending', 'paid', 'failed', 'refunded'],
+        default: 'pending',
     },
     stripeSessionId: { type: String },
     transactionId: {
