@@ -22,5 +22,5 @@ function generateOverlappingTimeSlots(dateString, start, end, slotDurationHours,
   }
   
 
-const slotGenerator = { generateTimeSlots };
+const slotGenerator = { generateOverlappingTimeSlots };
 export default slotGenerator;
