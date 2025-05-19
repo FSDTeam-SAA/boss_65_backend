@@ -1,4 +1,4 @@
-function slotGenerator(date, start, end, slotDurationHours, stepMinutes = 60) {
+export function slotGenerator(date, start, end, slotDurationHours, stepMinutes = 60) {
   console.log('Date:', date);
   console.log('Start:', start);
   console.log('End:', end);

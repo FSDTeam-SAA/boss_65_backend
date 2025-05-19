@@ -17,7 +17,7 @@ const bookingSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PromoCode',
         default: null
-      }
+    }
     ,
     date: {
         type: Date,
@@ -53,6 +53,10 @@ const bookingSchema = new Schema({
         default: null
     },
     refundedAt: {
+        type: Date,
+        default: null,
+    },
+    expiresAt: {
         type: Date,
         default: null,
     },
