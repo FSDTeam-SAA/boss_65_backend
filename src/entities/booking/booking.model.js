@@ -28,8 +28,7 @@ const bookingSchema = new Schema({
             start: { type: String, required: true },
             end: { type: String, required: true }
         }
-    ]
-    ,
+    ],
     service: {
         type: Schema.Types.ObjectId,
         ref: 'Service',
@@ -66,11 +65,10 @@ const bookingSchema = new Schema({
         enum: ['pending', 'paid', 'failed', 'refunded'],
         default: 'pending',
     },
-
-}, {
+}, 
+{
     timestamps: true
 });
 
-bookingSchema.index({ service: 1, date: 1, "timeSlot.start": 1, "timeSlot.end": 1 });
 
 export default mongoose.model("Booking", bookingSchema);

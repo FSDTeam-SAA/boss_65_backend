@@ -7,13 +7,15 @@ export const createService = async (serviceData) => {
 
 
 export const getAllServices = async () => {
-    return await Service.find();
-  };
-  
-export const getServiceById = async (id) => {
-    return await Service.findById(id);
-  };
+  return await Service.find();
+};
 
-  export const getServiceByCategoryId =async(categoryId)=>{
-    return await Service.find({category:categoryId});
-  }
+
+export const getServiceById = async (id) => {
+  return await Service.findById(id);
+};
+
+
+export const getServiceByCategoryId =async(categoryId)=>{
+  return await Service.find({category:categoryId});
+}

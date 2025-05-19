@@ -10,6 +10,7 @@ import {
 import { verifyToken, adminMiddleware } from '../../core/middlewares/authMiddleware.js';
 import { checkAvailabilityController } from './booking.controller.js';
 
+
 const router = express.Router();
 
 // Public
