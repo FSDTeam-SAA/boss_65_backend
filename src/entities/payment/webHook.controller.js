@@ -1,13 +1,16 @@
 import Stripe from 'stripe';
-import { Payment } from '../payment/payment.model.js';
 import Booking from '../booking/booking.model.js';
+import { Payment } from './payment.model.js';
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+
+
 export const stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
+
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
@@ -15,7 +18,7 @@ export const stripeWebhook = async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error('❌ Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -24,50 +27,80 @@ export const stripeWebhook = async (req, res) => {
       case 'checkout.session.completed': {
         const session = event.data.object;
 
-        const payment = await Payment.findOne({ stripeSessionId: session.id }).populate('booking');
-        if (payment) {
-          payment.paymentStatus = 'paid';
-          payment.transactionId = session.payment_intent;
-          payment.paymentDate = new Date();
-          await payment.save();
+        // Update Payment status
+        const payment = await Payment.findOneAndUpdate(
+            { stripeSessionId: session.id },
+            {
+              paymentStatus: 'paid',
+              paymentIntentId: session.payment_intent,
+            },
+          
+        
+          { new: true }
+        );
 
-          if (payment.booking) {
-            payment.booking.paymentStatus = 'paid';
-            payment.booking.status = 'confirmed';
-            await payment.booking.save();
-          }
+        if (!payment) {
+          console.warn('⚠️ Payment not found for session:', session.id);
+          break;
         }
+
+        // Update Booking status
+        await Booking.findByIdAndUpdate(
+          payment.booking,
+          {
+            status: 'confirmed',
+            paymentStatus: 'paid',
+          },
+          
+          { new: true }
+        );
+
+        console.log(`✅ Booking ${payment.booking} confirmed via webhook`);
         break;
       }
 
-      case 'charge.refunded': {
-        const refund = event.data.object.refunds.data[0];
-        const charge = event.data.object;
-
-        const payment = await Payment.findOne({ transactionId: charge.payment_intent });
-        if (payment) {
-          payment.paymentStatus = 'refunded';
-          payment.refundId = refund.id;
-          await payment.save();
-
-          const booking = await Booking.findById(payment.booking);
-          if (booking) {
-            booking.paymentStatus = 'refunded';
-            booking.refundedAt = new Date();
-            booking.refundId = refund.id;
-            await booking.save();
+      case 'charge.refunded':
+        case 'refund.updated':
+        case 'refund.succeeded': {
+          const object = event.data.object;
+          const paymentIntentId = object.payment_intent;
+  
+          if (!paymentIntentId) {
+            console.warn(`⚠️ No paymentIntentId in event: ${event.type}`);
+            break;
           }
+  
+          const payment = await Payment.findOneAndUpdate(
+            { paymentIntentId },
+            { paymentStatus: 'refunded' },
+            { new: true }
+          );
+  
+          if (!payment) {
+            console.warn('⚠️ Refunded payment not found for intent:', paymentIntentId);
+            break;
+          }
+  
+          await Booking.findByIdAndUpdate(
+            payment.booking,
+            {
+              status: 'cancelled',
+              paymentStatus: 'refunded',
+            },
+            { new: true }
+          );
+  
+          console.log(`💸 Booking ${payment.booking} refunded via ${event.type}`);
+          break;
         }
-        break;
-      }
 
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
 
     res.status(200).json({ received: true });
-  } catch (error) {
-    console.error('Webhook handler failed:', error);
-    res.status(500).send('Internal Server Error');
+  } catch (err) {
+    console.error('❌ Error in webhook processing:', err);
+    res.status(500).send('Webhook handler error');
   }
 };

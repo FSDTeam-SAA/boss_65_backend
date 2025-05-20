@@ -39,7 +39,7 @@ const bookingSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'cancelled'],
+        enum: ['pending', 'confirmed', 'cancelled','refunded'],
         default: 'pending'
     },
     stripeSessionId: {
@@ -54,6 +54,7 @@ const bookingSchema = new Schema({
         type: Date,
         default: null,
     },
+    paymentIntentId:{ String},
     expiresAt: {
         type: Date,
         default: null,
