@@ -14,6 +14,7 @@ import notFound from './core/middlewares/notFound.js';
 import { globalLimiter } from './lib/limit.js';
 import appRouter from './core/app/appRouter.js';
 import { stripeWebhook } from './entities/payment/webHook.controller.js';
+import bodyParser from 'body-parser';
 
 
 
@@ -35,7 +36,7 @@ app.use(mongoSanitize());
 // Set up logging middleware
 app.use(morgan('combined'));
 
-app.post('/api/v1/payment/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+app.post('/api/v1/payment/webhook',  bodyParser.raw({type: "*/*"}), stripeWebhook);
 
 // Set up body parsing middleware
 app.use(express.json({

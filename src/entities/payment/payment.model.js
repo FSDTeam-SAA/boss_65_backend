@@ -20,15 +20,14 @@ const paymentSchema = new Schema({
     refundId: {
         type: String,
         default: null,
-        unique: true,
-        sparse: true
+        
       },
       
     transactionId: {
         type: String,
-        unique: true,
-        sparse: true
+        
     },
+    paymentIntentId:{ String},
     createdAt: {
         type: Date,
         default: Date.now,
@@ -40,7 +39,6 @@ const paymentSchema = new Schema({
     }
 });
 
-// Indexes
-paymentSchema.index({ status: 1 });
+
 
 export const Payment = mongoose.model("Payment", paymentSchema);
