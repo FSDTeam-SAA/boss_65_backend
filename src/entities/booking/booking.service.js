@@ -143,22 +143,19 @@ export const deleteBooking = async (id) => {
 
 // generating time slots and checking the time slots are availabel or not
 export const checkAvailabilityService = async (date, serviceId) => {
-    
     const service = await Service.findById(serviceId);
-    // console.log('Service:', service);
     if (!service) throw new Error('Service not found');
 
     const bookingDate = new Date(date);
-    //console.log('Booking Date:', bookingDate);
     if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
 
     const weekday = bookingDate.toLocaleDateString('en-SG', { weekday: 'short' });
 
+    // If service is not available on this day, return a signal to the controller
     if (!service.availableDays.includes(weekday)) {
-        throw new Error(`Service not available on ${weekday}`);
+        return { available: false, slots: [], weekday };
     }
 
-    // Generate slots
     const slots = slotGenerator(
         date,
         service.timeRange.start,
@@ -166,9 +163,7 @@ export const checkAvailabilityService = async (date, serviceId) => {
         service.slotDurationHours,
         60 // stepMinutes
     );
-    console.log('Generated Slots:', slots);
 
-    // Find bookings for the whole day
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
@@ -181,14 +176,11 @@ export const checkAvailabilityService = async (date, serviceId) => {
     });
 
     if (existingBookings.length === 0) {
-        // No bookings found, return all slots available
-        return slots.map(slot => ({ ...slot, available: true }));
+        return { available: true, slots: slots.map(slot => ({ ...slot, available: true })) };
     }
 
-    // Flatten booked slots from bookings
     const bookedSlots = existingBookings.flatMap(b => b.timeSlots);
 
-    // Mark slots as available or booked
     const availableSlots = slots.map(slot => {
         const isBooked = bookedSlots.some(
             (b) => slot.start < b.end && slot.end > b.start
@@ -196,5 +188,5 @@ export const checkAvailabilityService = async (date, serviceId) => {
         return { ...slot, available: !isBooked };
     });
 
-    return availableSlots;
+    return { available: true, slots: availableSlots };
 };

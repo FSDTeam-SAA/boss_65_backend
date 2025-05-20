@@ -97,9 +97,20 @@ export const checkAvailabilityController = async (req, res) => {
       return generateResponse(res, 400, false, "date and serviceId are required");
     }
 
-    const slots = await checkAvailabilityService(date, serviceId);
-    generateResponse(res, 200, true, "Available slots fetched successfully", slots);
+    const result = await checkAvailabilityService(date, serviceId);
+
+    if (!result.available) {
+      return generateResponse(
+        res,
+        200,
+        true,
+        `This service not available on ${result.weekday}`,
+        []
+      );
+    }
+
+    return generateResponse(res, 200, true, "Available slots fetched successfully", result.slots);
   } catch (error) {
-    generateResponse(res, 500, false, "Failed to check availability", error.message);
+    return generateResponse(res, 500, false, "Failed to check availability", error.message);
   }
 };
