@@ -17,6 +17,13 @@ const paymentSchema = new Schema({
         default: 'pending',
     },
     stripeSessionId: { type: String },
+    refundId: {
+        type: String,
+        default: null,
+        unique: true,
+        sparse: true
+      },
+      
     transactionId: {
         type: String,
         unique: true,

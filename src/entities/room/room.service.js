@@ -9,13 +9,13 @@ export const createRoomService = async (data) => {
 
 
 export const getAllRoomsService = async () => {
-  return await Room.find().populate("category").sort({ createdAt: -1 });
+  return await Room.find().sort({ createdAt: -1 });
 };
 
 
 export const getRoomByIdService = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
-  return await Room.findById(id).populate("category");
+  return await Room.findById(id);
 };
 
 
