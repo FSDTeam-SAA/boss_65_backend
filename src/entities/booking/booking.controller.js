@@ -3,48 +3,44 @@ import { checkAvailabilityService, createBookingService } from './booking.servic
 
 
 export const createBookingController = async (req, res) => {
-    try {
-        // Extract booking data from request body
-        const {
-            user,
-            date,
-            timeSlots,
-            service,
-            room,
-            promoCode,
-            numberOfPeople,
-        } = req.body;
+  try {
+    const {
+      user,
+      date,
+      timeSlots,
+      service,
+      room,
+      promoCode,
+      numberOfPeople,
+    } = req.body;
 
-        // Basic validation
-        if (!user || !user.firstName || !user.lastName || !user.email || !user.phone) {
-            return res.status(400).json({ message: 'User details are incomplete' });
-        }
-        if (!date || !timeSlots || !service || !room || !numberOfPeople) {
-            return res.status(400).json({ message: 'Missing required booking fields' });
-        }
-        if (!Array.isArray(timeSlots) || timeSlots.length === 0) {
-            return res.status(400).json({ message: 'At least one time slot must be selected' });
-        }
-
-        // Call the booking service to create the booking
-        const booking = await createBookingService({
-            user,
-            date,
-            timeSlots,
-            service,
-            room,
-            promoCode,
-            numberOfPeople,
-        });
-
-        return res.status(201).json({
-            message: 'Booking created successfully',
-            booking,
-        });
-    } catch (error) {
-        console.error('Create Booking Error:', error);
-        return res.status(400).json({ message: error.message || 'Booking failed' });
+    // Basic validation
+    if (!user || !user.firstName || !user.lastName || !user.email || !user.phone) {
+      return generateResponse(res, 400, false, "User details are incomplete");
     }
+    if (!date || !timeSlots || !service || !room || !numberOfPeople) {
+      return generateResponse(res, 400, false, "Missing required booking fields");
+    }
+    if (!Array.isArray(timeSlots) || timeSlots.length === 0) {
+      return generateResponse(res, 400, false, "At least one time slot must be selected");
+    }
+
+    // Create booking
+    const booking = await createBookingService({
+      user,
+      date,
+      timeSlots,
+      service,
+      room,
+      promoCode,
+      numberOfPeople,
+    });
+
+    generateResponse(res, 201, true, "Booking created successfully", booking);
+  } catch (error) {
+    console.error("Create Booking Error:", error);
+    generateResponse(res, 500, false, "Booking failed", error.message);
+  }
 };
 
 
@@ -94,16 +90,16 @@ export const deleteBooking = async (req, res) => {
 
 
 export const checkAvailabilityController = async (req, res) => {
-    try {
-        const { date, serviceId } = req.body;
+  try {
+    const { date, serviceId } = req.body;
 
-        if (!date || !serviceId) {
-            return res.status(400).json({ error: 'date and serviceId are required' });
-        }
-
-        const slots = await checkAvailabilityService(date, serviceId);
-        return res.status(200).json({ slots });
-    } catch (error) {
-        return res.status(400).json({ error: error.message });
+    if (!date || !serviceId) {
+      return generateResponse(res, 400, false, "date and serviceId are required");
     }
+
+    const slots = await checkAvailabilityService(date, serviceId);
+    generateResponse(res, 200, true, "Available slots fetched successfully", slots);
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to check availability", error.message);
+  }
 };
