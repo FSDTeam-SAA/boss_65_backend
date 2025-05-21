@@ -37,8 +37,8 @@ export const payment = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/success?bookingId=${bookingId}`,
-cancel_url: `${process.env.FRONTEND_URL}/cancel?bookingId=${bookingId}`,
+      success_url: `${process.env.FRONTEND_URL}/success/${bookingId}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel?bookingId=${bookingId}`,
 
     });
 
