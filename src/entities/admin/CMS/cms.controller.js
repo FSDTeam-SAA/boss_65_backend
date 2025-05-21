@@ -126,12 +126,27 @@ export const getBlogById = async (req, res) => {
 
 export const updateBlog = async (req, res) => {
   try {
-    const updated = await updateBlogService(req.params.id, req.body);
+    const { title, description } = req.body;
+    const thumbnailFile = req.files?.thumbnail?.[0];
+    let updateData = { title, description };
+
+    if (thumbnailFile) {
+      const result = await cloudinaryUpload(thumbnailFile.path, `blog_thumb_${Date.now()}`, "blogs/thumbnails");
+      if (result?.secure_url) {
+        updateData.thumbnail = result.secure_url;
+      }
+    }
+
+    const updated = await updateBlogService(req.params.id, updateData, { new: true });
+
+    if (!updated) return generateResponse(res, 404, false, "Blog not found");
+
     generateResponse(res, 200, true, "Blog updated successfully", updated);
   } catch (error) {
     generateResponse(res, 400, false, "Failed to update blog", error.message);
   }
 };
+
 
 
 export const deleteBlog = async (req, res) => {
