@@ -6,6 +6,7 @@ import {
   updateBooking,
   deleteBooking,
   createBookingController,
+  getBookingStats,
 } from './booking.controller.js';
 import { verifyToken, adminMiddleware } from '../../core/middlewares/authMiddleware.js';
 import { checkAvailabilityController } from './booking.controller.js';
@@ -15,6 +16,7 @@ const router = express.Router();
 
 // Public
 router.post('/', createBookingController); 
+router.get('/stats',getBookingStats);
 router.get('/', verifyToken, adminMiddleware, getAllBookings);
 router.get('/:id', getBookingById);
 router.post('/check-availability', checkAvailabilityController);

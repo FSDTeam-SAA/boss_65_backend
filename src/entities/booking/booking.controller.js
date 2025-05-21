@@ -1,6 +1,10 @@
 import { generateResponse } from '../../lib/responseFormate.js';
 import { checkAvailabilityService, createBookingService } from './booking.service.js';
+
+import Booking from './booking.model.js';
+
 import * as bookingService from './booking.service.js';
+
 
 export const createBookingController = async (req, res) => {
   try {
@@ -113,5 +117,96 @@ export const checkAvailabilityController = async (req, res) => {
     return generateResponse(res, 200, true, "Available slots fetched successfully", result.slots);
   } catch (error) {
     return generateResponse(res, 500, false, "Failed to check availability", error.message);
+  }
+};
+
+
+
+export const  getBookingStats = async (req, res) => {
+  try {
+    const year = new Date().getFullYear(); // optionally support query param
+    const start = new Date(`${year}-01-01`);
+    const end = new Date(`${year}-12-31`);
+
+    // Monthly booking, revenue, refunds, and unique users
+    const stats = await Booking.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $addFields: {
+          month: { $month: "$createdAt" }
+        }
+      },
+      {
+        $group: {
+          _id: "$month",
+          bookings: { $sum: 1 },
+          revenue: {
+            $sum: {
+              $cond: [
+                { $and: [{ $eq: ["$status", "confirmed"] }, { $eq: ["$paymentStatus", "paid"] }] },
+                "$total",
+                0
+              ]
+            }
+          },
+          refunds: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "refunded"] }, "$total", 0]
+            }
+          },
+          users: { $addToSet: "$user.email" }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    // Repeated & new users (confirmed + paid only)
+    const userStats = await Booking.aggregate([
+      {
+        $match: {
+          status: "confirmed",
+          paymentStatus: "paid",
+          createdAt: { $gte: start, $lte: end }
+        }
+      },
+      {
+        $group: {
+          _id: "$user.email",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const repeatedUsers = userStats.filter(u => u.count > 1).length;
+    const newUsers = userStats.filter(u => u.count === 1).length;
+
+    // Format monthly data
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const finalData = Array.from({ length: 12 }, (_, i) => {
+      const monthStat = stats.find(s => s._id === i + 1);
+      return {
+        name: months[i],
+        bookings: monthStat?.bookings || 0,
+        revenue: monthStat?.revenue || 0,
+        refunds: monthStat?.refunds || 0,
+        uniqueUsers: monthStat?.users.length || 0
+      };
+    });
+
+    generateResponse(res, 200, true, "Booking stats fetched successfully", { stats: finalData,
+      repeatedUsers,
+      newUsers})
+    }
+       catch (error) {
+    console.error("Failed to get booking stats:", error);
+    generateResponse(res, 500, false, "Failed to get booking stats", error.message);
   }
 };

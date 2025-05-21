@@ -78,10 +78,17 @@ export const getBookingDetails = async (req, res) => {
 
   try {
     const booking = await Booking.findById(bookingId)
-      .populate('user', 'name email photoURL')         // Optional: customize returned fields
-      .populate('room', 'name location capacity')       // Optional
-      .populate('service', 'title price duration')      // If service is a populated reference
-      .lean(); // returns plain JS object
+    .populate('user', 'name email photoURL')         
+    .populate('room', 'title maxcapacity')      
+    .populate({
+      path: 'service',
+      select: 'name price  category',
+      populate: {
+        path: 'category',
+        select: 'name description'
+      }
+    })
+    .lean();
 
     if (!booking) {
       return generateResponse(res, 404, false, 'Booking not found');
