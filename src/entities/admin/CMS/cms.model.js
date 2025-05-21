@@ -1,33 +1,8 @@
 import mongoose from "mongoose";
 
-const blogSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    description: {
-      type: String,
-      default: ""
-    },
-    thumbnail: {
-      type: String,
-    },
-  },
-  {
-    timestamps: true
-  },
 
-);
 
-const faqSchema = new mongoose.Schema(
-  {
-    question: String,
-    answer: String,
-  },
-  { timestamps: true }
-);
+
 
 const cmsSchema = new mongoose.Schema(
   {
@@ -35,7 +10,7 @@ const cmsSchema = new mongoose.Schema(
     section: {
       type: String,
       required: true,
-      enum: ["gallery", "hero", "testimonial", "alert", "banner", "blog", "faq", "footer"],
+      enum: ["gallery", "hero", "testimonial", "alert", "banner", "footer"],
     },
     type: {
       type: String,
@@ -54,10 +29,7 @@ const cmsSchema = new mongoose.Schema(
     },
 
 
-    blog: blogSchema,
-
-
-    faqs: [faqSchema],
+   
   },
   { timestamps: true }
 );
