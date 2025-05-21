@@ -5,6 +5,7 @@ import {
   updatePromoCodeService,
   deletePromoCodeService,
   applyPromoCodeService,
+  sendEmail,
 } from "./promo_code.service.js";
 import { generateResponse } from "../../lib/responseFormate.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
@@ -77,3 +78,38 @@ export const applyPromoCode = async (req, res) => {
     generateResponse(res, 400, false, "Failed to apply promo code", error.message);
   }
 };
+
+
+
+export const sendEmailController = async (req, res) => {
+  const { email, subject, body, promoCode } = req.body;
+
+  if (!email || !subject || !body || !promoCode) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const emailList = email.split(',').map(e => e.trim());
+
+    const sendResults = await Promise.all(
+      emailList.map(async (singleEmail) => {
+        try {
+          const result = await sendEmail({
+            to: singleEmail,
+            subject,
+            body,
+            promoCode,
+          });
+          return { email: singleEmail, status: 'success', result };
+        } catch (err) {
+          return { email: singleEmail, status: 'failed', error: err.message };
+        }
+      })
+    );
+
+    res.status(200).json({ message: 'Emails processed', data: sendResults });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to send emails', error: err.message });
+  }
+};
+
