@@ -37,21 +37,22 @@ export const payment = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.FRONTEND_URL}/success?bookingId=${bookingId}`,
+cancel_url: `${process.env.FRONTEND_URL}/cancel?bookingId=${bookingId}`,
+
     });
 
-    // Save the payment data with both session ID and paymentIntent ID
+    
     const newPayment = new Payment({
       booking: booking._id,
       price: total,
       stripeSessionId: session.id,
-      paymentIntentId: session.payment_intent, // ✅ store this for refunds
+      paymentIntentId: session.payment_intent,
       status: 'pending',
     });
     await newPayment.save();
 
-    // Optionally, store session ID in booking too
+    
     booking.stripeSessionId = session.id;
     await booking.save();
 
@@ -64,6 +65,50 @@ export const payment = async (req, res) => {
   generateResponse(res, 500, false, 'Payment session creation failed', error.message);
   }
 };
+
+
+
+
+export const getBookingDetails = async (req, res) => {
+  const bookingId = req.params.bookingId || req.query.bookingId;
+
+  if (!bookingId) {
+    return generateResponse(res, 400, false, 'Booking ID is required');
+  }
+
+  try {
+    const booking = await Booking.findById(bookingId)
+      .populate('user', 'name email photoURL')         // Optional: customize returned fields
+      .populate('room', 'name location capacity')       // Optional
+      .populate('service', 'title price duration')      // If service is a populated reference
+      .lean(); // returns plain JS object
+
+    if (!booking) {
+      return generateResponse(res, 404, false, 'Booking not found');
+    }
+
+    return generateResponse(res, 200, true, 'Booking details fetched successfully', booking);
+  } catch (error) {
+    console.error('Error fetching booking:', error.message);
+    return generateResponse(res, 500, false, 'Internal Server Error', error.message);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // export const updatePaymentStatus = async (req, res) => {
