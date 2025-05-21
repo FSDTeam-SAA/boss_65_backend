@@ -1,5 +1,5 @@
 import PromoCode from "./promo_code.model.js";
-
+import { Resend } from 'resend';
 
 export const createPromoCodeService = async (data) => {
   // cleans up the code string 
@@ -69,3 +69,33 @@ export const applyPromoCodeService = async (code) => {
 
   return promo;
 };
+
+
+// email
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const sendEmail = async ({ to, subject, body, promoCode }) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to, // now this is a single email string
+      subject,
+      html: `
+        <div>
+          <p>${body}</p>
+          <p><strong>Promo Code:</strong> ${promoCode}</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (err) {
+    console.error(`Email send error for ${to}:`, err.message);
+    throw err;
+  }
+};
+
