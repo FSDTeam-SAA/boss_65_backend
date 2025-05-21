@@ -15,38 +15,67 @@ import {
   deleteFaq,
   toggleFaqStatus,
 } from "./cms.controller.js";
+
 import { multerUpload } from "../../../core/middlewares/multer.js";
 import { adminMiddleware, verifyToken } from "../../../core/middlewares/authMiddleware.js";
 
-
-
 const router = express.Router();
 
-router.post("/upload", multerUpload([{ name: "file", maxCount: 5 }]), uploadCmsAsset);
+//
+// Asset routes
+//
+router.post(
+  "/upload",
+  multerUpload([{ name: "file", maxCount: 5 }]),
+  uploadCmsAsset
+);
 
-router.get("/assests", getAllCmsAssets);
-router.patch("/:id/toggle", verifyToken, adminMiddleware, toggleCmsAssetStatus);
-router.get("/", getAllBlogs);
-router.get("/:id", getBlogById);
+router.get("/assets", getAllCmsAssets);
 
+router.patch(
+  "/:id/toggle",
+  verifyToken,
+  adminMiddleware,
+  toggleCmsAssetStatus
+);
+
+//
+// Blog routes
+//
+router.get("/blogs", getAllBlogs);
+router.get("/blogs/:id", getBlogById);
 
 router.post(
-  "/create",
-  verifyToken, adminMiddleware,
+  "/blogs",
+  verifyToken,
+  adminMiddleware,
   multerUpload([{ name: "thumbnail", maxCount: 1 }]),
   createBlog
 );
-router.put("/:id", verifyToken, adminMiddleware,multerUpload([{ name: "thumbnail", maxCount: 1 }]),updateBlog);
-router.delete("/:id", verifyToken, adminMiddleware, deleteBlog);
 
-router
-  .post("/faq", verifyToken, adminMiddleware, createFaq)
-  .get("/faq", verifyToken, adminMiddleware, getAllFaqs)
-  .get("/faq/:id", verifyToken, adminMiddleware, verifyToken, adminMiddleware, getFaqById)
-  .put("/faq/:id", verifyToken, adminMiddleware, updateFaq)
-  .delete("/faq/:id", verifyToken, adminMiddleware, deleteFaq)
-  .patch("/faq/:id/toggle", verifyToken, adminMiddleware, toggleFaqStatus);
+router.put(
+  "/blogs/:id",
+  verifyToken,
+  adminMiddleware,
+  multerUpload([{ name: "thumbnail", maxCount: 1 }]),
+  updateBlog
+);
 
+router.delete(
+  "/blogs/:id",
+  verifyToken,
+  adminMiddleware,
+  deleteBlog
+);
 
+//
+// FAQ routes
+//
+router.get("/faqs", getAllFaqs);
+router.get("/faqs/:id", verifyToken, adminMiddleware, getFaqById);
+router.post("/faqs", verifyToken, adminMiddleware, createFaq);
+router.put("/faqs/:id", verifyToken, adminMiddleware, updateFaq);
+router.delete("/faqs/:id", verifyToken, adminMiddleware, deleteFaq);
+router.patch("/faqs/:id/toggle", verifyToken, adminMiddleware, toggleFaqStatus);
 
 export default router;
