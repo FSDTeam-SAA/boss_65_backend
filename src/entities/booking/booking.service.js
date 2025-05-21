@@ -84,62 +84,49 @@ for (let requestedSlot of timeSlots) {
 };
 
 
-export const getBookingById = async (id) => {
-    const booking = await Booking.findById(id)
-        .populate({
-            path: 'service',
-            populate: {
-                path: 'room',
-            }
-        })
-        .populate('promoCode');
 
-    if (!booking) throw new Error('Booking not found');
-    return booking;
+export const getBookingById = async (id) => {
+  const booking = await Booking.findById(id)
+    .populate('service')
+    .populate('room')        // ✅ Populate 'room' directly
+    .populate('promoCode');  // ✅ Populate promoCode
+
+  if (!booking) throw new Error('Booking not found');
+  return booking;
 };
 
 
 export const getAllBookings = async (query = {}) => {
-    return await Booking.find(query)
-        .sort({ createdAt: -1 })
-        .populate({
-            path: 'service',
-            populate: {
-                path: 'room',
-            }
-        })
-        .populate('promoCode');
+  return await Booking.find(query).sort({ createdAt: -1 });
 };
-
 
 export const updateBooking = async (id, status) => {
-    const allowedStatuses = ["pending", "confirmed", "cancelled", "refunded"];
+  const allowedStatuses = ['pending', 'confirmed', 'cancelled', 'refunded'];
+  if (!allowedStatuses.includes(status)) {
+    throw new Error(`Invalid status. Allowed values are: ${allowedStatuses.join(', ')}`);
+  }
 
-    if (!allowedStatuses.includes(status)) {
-        throw new Error(`Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`);
-    }
+  const booking = await Booking.findByIdAndUpdate(
+    id,
+    { status },
+    { new: true, runValidators: true }
+  )
+    .populate({
+      path: 'service',
+      populate: { path: 'room' }
+    })
+    .populate('promoCode');
 
-    const booking = await Booking.findByIdAndUpdate(
-        id,
-        { status },
-        { new: true, runValidators: true }
-    )
-        .populate({
-            path: "service",
-            populate: { path: "room" }
-        })
-        .populate("promoCode");
-
-    if (!booking) throw new Error("Booking not found or update failed");
-    return booking;
+  if (!booking) throw new Error("Booking not found or update failed");
+  return booking;
 };
-
 
 export const deleteBooking = async (id) => {
-    const deleted = await Booking.findByIdAndDelete(id);
-    if (!deleted) throw new Error('Booking not found or already deleted');
-    return true;
+  const deleted = await Booking.findByIdAndDelete(id);
+  if (!deleted) throw new Error('Booking not found or already deleted');
+  return true;
 };
+
 
 
 // generating time slots and checking the time slots are availabel or not
