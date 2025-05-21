@@ -22,20 +22,21 @@ export const createBookingService = async (data) => {
     const service = await Service.findById(serviceId);
     if (!service) throw new Error('Service not found');
 
-    // STEP 1: Check if selected slots are still available
-    const availableSlots = await checkAvailabilityService(date, serviceId);
+// STEP 1: Check if selected slots are still available
+const { slots: availableSlots } = await checkAvailabilityService(date, serviceId);
 
-    for (let requestedSlot of timeSlots) {
-        const match = availableSlots.find(
-            slot =>
-                slot.start === requestedSlot.start &&
-                slot.end === requestedSlot.end &&
-                slot.available === true
-        );
-        if (!match) {
-            throw new Error(`Slot ${requestedSlot.start} - ${requestedSlot.end} is no longer available.`);
-        }
+for (let requestedSlot of timeSlots) {
+    const match = availableSlots.find(
+        slot =>
+            slot.start === requestedSlot.start &&
+            slot.end === requestedSlot.end &&
+            slot.available === true
+    );
+    if (!match) {
+        throw new Error(`Slot ${requestedSlot.start} - ${requestedSlot.end} is no longer available.`);
     }
+}
+
 
     // STEP 2: Calculate total price based on duration
     const durationPerSlot = service.slotDurationHours; // in hours
