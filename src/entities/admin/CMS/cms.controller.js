@@ -2,7 +2,6 @@ import asyncHandler from "express-async-handler";
 import {
   uploadCmsAssetService,
   getAllCmsAssetsService,
-  toggleCmsAssetStatusService,
   createBlogService,
   getAllBlogsService,
   getBlogByIdService,
@@ -13,7 +12,8 @@ import {
   getFaqByIdService,
   updateFaqService,
   deleteFaqService,
-  toggleFaqStatusService,
+  updateCmsAssetService,
+  deleteCmsAssetService,
 } from "../CMS/cms.service.js";
 
 import { cloudinaryUpload } from "../../../lib/cloudinaryUpload.js";
@@ -41,45 +41,68 @@ export const uploadCmsAsset = asyncHandler(async (req, res) => {
     generateResponse(res, 500, false, "Failed to upload CMS assets", error.message);
   }
 });
-  
+export const updateCmsAsset = asyncHandler(async (req, res) => {
+  const { section } = req.body;
+  const files = req.files?.file;
+  const id = req.params.id;
+
+  if (!id || !section || !files || files.length === 0) {
+    return generateResponse(res, 400, false, "ID, section, and file are required");
+  }
+
+  try {
+    // handle multiple files gracefully if needed (assuming single file here)
+    const file = Array.isArray(files) ? files[0] : files;
+
+    const updatedAsset = await updateCmsAssetService({
+      id,
+      file,
+      section,
+    });
+
+    generateResponse(res, 200, true, "CMS asset updated successfully", updatedAsset);
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to update CMS asset", error.message);
+  }
+});
+
+
+
+
+
 
 // GET /api/admin/cms
 export const getAllCmsAssets = asyncHandler(async (req, res) => {
-  
-    const { section ,type} = req.query;
-  
-    const filter = {};
-    if (section) {
-      filter.section = section;
-    }
-  if(type) filter.type=type;
-    const assets = await getAllCmsAssetsService(filter);
-    
-  
-   
-    if (assets.length === 0) {
-      generateResponse
-        (res, 404, false, "No assets found for the given section");
-    } else {
-      generateResponse(res, 200, true, "Fetched assets", assets);
-    }
+
+  const { section, type } = req.query;
+
+  const filter = {};
+  if (section) {
+    filter.section = section;
+  }
+  if (type) filter.type = type;
+  const assets = await getAllCmsAssetsService(filter);
+
+
+
+  if (assets.length === 0) {
+    generateResponse
+      (res, 404, false, "No assets found for the given section");
+  } else {
+    generateResponse(res, 200, true, "Fetched assets", assets);
+  }
 })
 
-
-// PATCH /api/admin/cms/:id/toggle
-export const toggleCmsAssetStatus = asyncHandler(async (req, res) => {
+// DELETE /api/admin/cms/:id
+export const deleteCmsAsset = asyncHandler(async (req, res) => {
   try {
-    const asset = await toggleCmsAssetStatusService(req.params.id);
-
-    if (!asset) {
-      return generateResponse(res, 404, false, "CMS asset not found");
-    }
-
-    generateResponse(res, 200, true, "CMS asset status toggled successfully", asset);
+    const deleted = await deleteCmsAssetService(req.params.id);
+    generateResponse(res, 200, true, "CMS asset deleted successfully", deleted);
   } catch (error) {
-    generateResponse(res, 500, false, "Failed to toggle CMS asset status", error.message);
+    generateResponse(res, 400, false, "Failed to delete CMS asset", error.message);
   }
 });
+
 
 
 
@@ -157,17 +180,17 @@ export const deleteBlog = async (req, res) => {
     generateResponse(res, 400, false, "Failed to delete blog", error.message);
   }
 };
-  
+
 
 // Create FAQ
 export const createFaq = async (req, res) => {
-    try {
-      const { question, answer } = req.body;
-      const faq = await createFaqService({ question, answer });
-      generateResponse(res, 201, true, "FAQ created successfully", faq);
-    } catch (error) {
-      generateResponse(res, 400, false, "Failed to create FAQ", error.message);
-    }
+  try {
+    const { question, answer } = req.body;
+    const faq = await createFaqService({ question, answer });
+    generateResponse(res, 201, true, "FAQ created successfully", faq);
+  } catch (error) {
+    generateResponse(res, 400, false, "Failed to create FAQ", error.message);
+  }
 };
 
 
@@ -215,13 +238,3 @@ export const deleteFaq = async (req, res) => {
   }
 };
 
-
-// Toggle FAQ active status
-export const toggleFaqStatus = async (req, res) => {
-  try {
-    const toggled = await toggleFaqStatusService(req.params.id);
-    generateResponse(res, 200, true, "FAQ status toggled", toggled);
-  } catch (error) {
-    generateResponse(res, 400, false, "Failed to toggle FAQ status", error.message);
-  }
-};

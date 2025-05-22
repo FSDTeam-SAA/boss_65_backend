@@ -10,7 +10,7 @@ const cmsSchema = new mongoose.Schema(
     section: {
       type: String,
       required: true,
-      enum: ["gallery", "hero", "testimonial", "alert", "banner", "footer"],
+      enum: ["gallery", "hero", "sub-hero", "space-hero","experience-hero","updates-hero","contact-hero","banner", "footer"],
     },
     type: {
       type: String,
