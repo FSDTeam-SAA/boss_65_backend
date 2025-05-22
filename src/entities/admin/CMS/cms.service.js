@@ -43,16 +43,52 @@ export const getAllCmsAssetsService = async (filter={}) => {
     return await CMS.find(filter).sort({ createdAt: -1 });
 };
 
-export const toggleCmsAssetStatusService = async (cmsId) => {
-    const entry = await CMS.findById(cmsId);
-    if (!entry) throw new Error("CMS entry not found");
+//update the cms 
+export const updateCmsAssetService = async ({ id, file, section }) => {
+  if (!id || !file || !section) {
+    throw new Error("ID, file, and section are required");
+  }
 
-    entry.isActive = !entry.isActive;
-    await entry.save();
+  const existing = await CMS.findById(id);
+  if (!existing) {
+    throw new Error("CMS entry not found");
+  }
 
-    return entry;
+  // Upload new asset to Cloudinary
+  const folder = "admin-cms";
+  const public_id = `cms/${Date.now()}-${file.originalname}`;
+  const uploaded = await cloudinaryUpload(file.path, public_id, folder);
+
+  if (typeof uploaded === "string" || !uploaded.secure_url) {
+    throw new Error("Cloudinary upload failed");
+  }
+
+  // Update CMS document with new details (old file stays on Cloudinary)
+  existing.section = section;
+  existing.type = uploaded.resource_type === "video" ? "video" : "image";
+  existing.url = uploaded.secure_url;
+  existing.public_id = uploaded.public_id;
+
+  await existing.save();
+
+  return existing;
 };
 
+
+
+
+export const deleteCmsAssetService = async (id) => {
+  const asset = await CMS.findById(id);
+  if (!asset) throw new Error("CMS asset not found");
+
+  // Delete the file from Cloudinary if public_id exists
+  if (asset.public_id) {
+    await cloudinaryDelete(asset.public_id);
+  }
+
+  const deleted = await CMS.findByIdAndDelete(id);
+  return deleted;
+};
 
 
 // Create Blog
@@ -91,15 +127,6 @@ export const deleteBlogService = async (blogId) => {
   return deleted;
 };
 
-// Toggle Blog Status (isActive)
-export const toggleBlogStatusService = async (blogId) => {
-  const blog = await Blog.findById(blogId);
-  if (!blog) throw new Error("Blog not found");
-
-  blog.isActive = !blog.isActive;
-  await blog.save();
-  return blog;
-};
 
 
 
@@ -137,12 +164,4 @@ export const deleteFaqService = async (faqId) => {
   return deleted;
 };
 
-// Toggle FAQ status
-export const toggleFaqStatusService = async (faqId) => {
-  const faq = await Faq.findById(faqId);
-  if (!faq) throw new Error("FAQ not found");
 
-  faq.isActive = !faq.isActive;
-  await faq.save();
-  return faq;
-};

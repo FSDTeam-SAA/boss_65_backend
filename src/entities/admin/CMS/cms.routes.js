@@ -2,7 +2,7 @@ import express from "express";
 import {
   uploadCmsAsset,
   getAllCmsAssets,
-  toggleCmsAssetStatus,
+  
   createBlog,
   updateBlog,
   deleteBlog,
@@ -13,7 +13,9 @@ import {
   getFaqById,
   updateFaq,
   deleteFaq,
-  toggleFaqStatus,
+  
+  updateCmsAsset,
+  deleteCmsAsset,
 } from "./cms.controller.js";
 
 import { multerUpload } from "../../../core/middlewares/multer.js";
@@ -32,12 +34,12 @@ router.post(
 
 router.get("/assets", getAllCmsAssets);
 
-router.patch(
-  "/:id/toggle",
-  verifyToken,
-  adminMiddleware,
-  toggleCmsAssetStatus
+router.put(
+  "/update/:id",verifyToken, adminMiddleware,
+  multerUpload([{ name: "file", maxCount: 5 }]),
+  updateCmsAsset
 );
+router.delete("/delete/:id", verifyToken, adminMiddleware, deleteCmsAsset);
 
 //
 // Blog routes
@@ -76,6 +78,6 @@ router.get("/faqs/:id", verifyToken, adminMiddleware, getFaqById);
 router.post("/faqs", verifyToken, adminMiddleware, createFaq);
 router.put("/faqs/:id", verifyToken, adminMiddleware, updateFaq);
 router.delete("/faqs/:id", verifyToken, adminMiddleware, deleteFaq);
-router.patch("/faqs/:id/toggle", verifyToken, adminMiddleware, toggleFaqStatus);
+
 
 export default router;
