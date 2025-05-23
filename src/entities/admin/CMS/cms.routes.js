@@ -2,7 +2,7 @@ import express from "express";
 import {
   uploadCmsAsset,
   getAllCmsAssets,
-  
+
   createBlog,
   updateBlog,
   deleteBlog,
@@ -13,9 +13,10 @@ import {
   getFaqById,
   updateFaq,
   deleteFaq,
-  
+
   updateCmsAsset,
   deleteCmsAsset,
+  getCmsAssetByIdController,
 } from "./cms.controller.js";
 
 import { multerUpload } from "../../../core/middlewares/multer.js";
@@ -31,11 +32,12 @@ router.post(
   multerUpload([{ name: "file", maxCount: 5 }]),
   uploadCmsAsset
 );
+router.get("/assets/:id", verifyToken, adminMiddleware, getCmsAssetByIdController);
 
 router.get("/assets", getAllCmsAssets);
 
 router.put(
-  "/update/:id",verifyToken, adminMiddleware,
+  "/update/:id", verifyToken, adminMiddleware,
   multerUpload([{ name: "file", maxCount: 5 }]),
   updateCmsAsset
 );

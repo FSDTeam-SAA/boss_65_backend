@@ -44,6 +44,9 @@ for (let requestedSlot of timeSlots) {
     const totalHours = timeSlots.length * durationPerSlot;
     let total = basePricePerHour * totalHours;
 
+
+    
+
     // STEP 3: Apply promo code if applicable
     let appliedPromo = null;
     if (promoCode) {

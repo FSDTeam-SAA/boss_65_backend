@@ -64,6 +64,7 @@ const bookingSchema = new Schema({
         enum: ['pending', 'paid', 'failed', 'refunded'],
         default: 'pending',
     },
+    freeSlotsAwarded: { type: Number, default: 0 },
 }, 
 {
     timestamps: true
