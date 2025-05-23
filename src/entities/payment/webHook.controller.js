@@ -6,7 +6,6 @@ import { Payment } from './payment.model.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
-
 export const stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -18,7 +17,7 @@ export const stripeWebhook = async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('❌ Webhook signature verification failed.', err.message);
+    console.error('Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -38,7 +37,7 @@ export const stripeWebhook = async (req, res) => {
         );
 
         if (!payment) {
-          console.warn('⚠️ Payment not found for session:', session.id);
+          console.warn('Payment not found for session:', session.id);
           break;
         }
 
@@ -53,7 +52,7 @@ export const stripeWebhook = async (req, res) => {
           { new: true }
         );
 
-        console.log(`✅ Booking ${payment.booking} confirmed via webhook`);
+        console.log(`Booking ${payment.booking} confirmed via webhook`);
         break;
       }
 
@@ -64,7 +63,7 @@ export const stripeWebhook = async (req, res) => {
           const paymentIntentId = object.payment_intent;
   
           if (!paymentIntentId) {
-            console.warn(`⚠️ No paymentIntentId in event: ${event.type}`);
+            console.warn(`No paymentIntentId in event: ${event.type}`);
             break;
           }
   
@@ -75,7 +74,7 @@ export const stripeWebhook = async (req, res) => {
           );
   
           if (!payment) {
-            console.warn('⚠️ Refunded payment not found for intent:', paymentIntentId);
+            console.warn('Refunded payment not found for intent:', paymentIntentId);
             break;
           }
   
@@ -88,7 +87,7 @@ export const stripeWebhook = async (req, res) => {
             { new: true }
           );
   
-          console.log(`💸 Booking ${payment.booking} refunded via ${event.type}`);
+          console.log(`Booking ${payment.booking} refunded via ${event.type}`);
           break;
         }
 
@@ -98,7 +97,7 @@ export const stripeWebhook = async (req, res) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
-    console.error('❌ Error in webhook processing:', err);
+    console.error('Error in webhook processing:', err);
     res.status(500).send('Webhook handler error');
   }
 };

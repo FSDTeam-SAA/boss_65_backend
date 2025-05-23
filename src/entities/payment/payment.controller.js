@@ -67,8 +67,6 @@ export const payment = async (req, res) => {
 };
 
 
-
-
 export const getBookingDetails = async (req, res) => {
   const bookingId = req.params.bookingId || req.query.bookingId;
 
