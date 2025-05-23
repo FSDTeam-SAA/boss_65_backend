@@ -34,8 +34,6 @@ export const stripeWebhook = async (req, res) => {
               paymentStatus: 'paid',
               paymentIntentId: session.payment_intent,
             },
-          
-        
           { new: true }
         );
 
@@ -60,8 +58,8 @@ export const stripeWebhook = async (req, res) => {
       }
 
       case 'charge.refunded':
-        case 'refund.updated':
-        case 'refund.succeeded': {
+      case 'refund.updated':
+      case 'refund.succeeded': {
           const object = event.data.object;
           const paymentIntentId = object.payment_intent;
   
@@ -84,7 +82,7 @@ export const stripeWebhook = async (req, res) => {
           await Booking.findByIdAndUpdate(
             payment.booking,
             {
-              status: 'cancelled',
+              status: 'refunded',
               paymentStatus: 'refunded',
             },
             { new: true }

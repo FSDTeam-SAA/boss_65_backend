@@ -109,16 +109,23 @@ export const getDashboardData = async (startDate, endDate) => {
     const revenueData = [];
 
     trends.forEach(item => {
-        let label = item._id.date;
+        const dateStr = item._id.date;
+        let label;
 
         if (labelKey === "month") {
-            const [year, month] = label.split("-");
-            label = MONTHS[parseInt(month, 10) - 1];
+            const [, month] = dateStr.split("-");
+            label = MONTHS[parseInt(month, 10) - 1]; 
+        } else if (labelKey === "day") {
+            const [, month] = dateStr.split("-");
+            label = MONTHS[parseInt(month, 10) - 1]; 
+        } else {
+            label = dateStr; 
         }
 
         bookingData.push({ label, value: item.bookingCount });
         revenueData.push({ label, value: item.totalRevenue });
     });
+
 
 
     // average booking duration
@@ -194,7 +201,7 @@ export const getDashboardData = async (startDate, endDate) => {
     }
     ]);
 
-    
+
     // Parse the result
     let newCustomers = 0;
     let returningCustomers = 0;
