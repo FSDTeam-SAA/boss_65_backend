@@ -20,12 +20,9 @@ const paymentSchema = new Schema({
     refundId: {
         type: String,
         default: null,
-        
-      },
-      
+    },
     transactionId: {
         type: String,
-        
     },
     paymentIntentId:{ String},
     createdAt: {

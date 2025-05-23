@@ -8,5 +8,4 @@ router.post('/payment-intent', payment)
 router.get('/booking/:bookingId',getBookingDetails)
 
 
-
 export default router
