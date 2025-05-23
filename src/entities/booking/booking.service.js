@@ -147,15 +147,11 @@ export const updateBooking = async (id, status) => {
     { status },
     { new: true, runValidators: true }
   )
-    .populate({
-      path: 'service',
-      populate: { path: 'room' }
-    })
-    .populate('promoCode');
 
   if (!booking) throw new Error("Booking not found or update failed");
   return booking;
 };
+
 
 export const deleteBooking = async (id) => {
   const deleted = await Booking.findByIdAndDelete(id);
