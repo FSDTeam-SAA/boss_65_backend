@@ -74,6 +74,14 @@ export const updateCmsAssetService = async ({ id, file, section }) => {
   return existing;
 };
 
+export const getCmsAssetByIdService = async (id) => {
+  if (!id) throw new Error("CMS asset ID is required");
+
+  const cmsAsset = await CMS.findById(id);
+  if (!cmsAsset) throw new Error("CMS asset not found");
+
+  return cmsAsset;
+};
 
 
 

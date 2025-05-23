@@ -14,6 +14,7 @@ import {
   deleteFaqService,
   updateCmsAssetService,
   deleteCmsAssetService,
+  getCmsAssetByIdService,
 } from "../CMS/cms.service.js";
 
 import { cloudinaryUpload } from "../../../lib/cloudinaryUpload.js";
@@ -92,6 +93,16 @@ export const getAllCmsAssets = asyncHandler(async (req, res) => {
     generateResponse(res, 200, true, "Fetched assets", assets);
   }
 })
+
+export const getCmsAssetByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cmsAsset = await getCmsAssetByIdService(id);
+    generateResponse(res, 200, true, "Fetched CMS asset", cmsAsset);  
+  } catch (error) {
+   generateResponse(res, 404, false, "CMS asset not found", error.message);
+  }
+};
 
 // DELETE /api/admin/cms/:id
 export const deleteCmsAsset = asyncHandler(async (req, res) => {
