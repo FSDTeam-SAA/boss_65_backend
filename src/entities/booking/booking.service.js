@@ -65,9 +65,41 @@ for (let requestedSlot of timeSlots) {
 
         if (total < 0) total = 0;
         appliedPromo = promo._id;
+
+
     }
 
-    // STEP 4: Create Booking
+     // STEP 4: Check and apply free slot logic
+    // -----------------------------
+
+    // Count how many confirmed bookings user already has (excluding cancelled/refunded)
+    const finalizedBookingCount = await Booking.countDocuments({
+        'user.email': user.email.toLowerCase(),
+        status: 'confirmed'
+    });
+
+    // Calculate how many free slots user should have earned
+    const freeSlotsShouldHave = Math.floor(finalizedBookingCount / 10);
+
+    // Get how many free slots user was awarded in previous bookings
+    // We find the latest booking with freeSlotsAwarded to get the number
+    const latestBooking = await Booking.findOne({ 'user.email': user.email.toLowerCase() })
+      .sort({ createdAt: -1 });
+
+    const freeSlotsAwarded = latestBooking?.freeSlotsAwarded || 0;
+
+    // If user should have more free slots than awarded, apply free booking now
+    if (freeSlotsShouldHave > freeSlotsAwarded) {
+        total = 0; // make this booking free
+    }
+
+
+
+
+
+
+
+    // STEP 5: Create Booking
     const booking = await Booking.create({
         user: {
             ...user,
@@ -81,7 +113,8 @@ for (let requestedSlot of timeSlots) {
         status: 'pending',
         paymentStatus: 'pending',
         promoCode: appliedPromo || undefined,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        freeSlotsAwarded: freeSlotsShouldHave > freeSlotsAwarded ? freeSlotsAwarded + 1 : freeSlotsAwarded
     });
     return booking;
 };
