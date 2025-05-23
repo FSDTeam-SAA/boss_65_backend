@@ -1,6 +1,8 @@
 import bookingModel from "../../booking/booking.model.js";
 
 export const getDashboardData = async (startDate, endDate) => {
+    
+    // validate start and end date
     if (!startDate || !endDate) {
         throw new Error("Start date and end date are required");
     }
@@ -15,11 +17,15 @@ export const getDashboardData = async (startDate, endDate) => {
     if (start > end) {
         throw new Error("Start date cannot be greater than end date");
     }
+    
 
+    // Fetch all bookings within the date range
     const totalBookings = await bookingModel.find({
         createdAt: { $gte: start, $lte: end }
     }).sort({ createdAt: -1 });
 
+
+    // Calculate total revenue 
     const totalRevenueAgg = await bookingModel.aggregate([
         {
             $match: {
@@ -36,6 +42,8 @@ export const getDashboardData = async (startDate, endDate) => {
         },
     ]);
 
+
+    // Calculate total refunds
     const totalRefundAgg = await bookingModel.aggregate([
         {
             $match: {
@@ -52,6 +60,8 @@ export const getDashboardData = async (startDate, endDate) => {
         },
     ]);
 
+
+    // Formate for time-series trends
     const MONTHS = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -71,6 +81,8 @@ export const getDashboardData = async (startDate, endDate) => {
         labelKey = "year";
     }
 
+
+    // aggregate booking trends
     const trends = await bookingModel.aggregate([
         {
             $match: {
@@ -91,6 +103,8 @@ export const getDashboardData = async (startDate, endDate) => {
         { $sort: { "_id.date": 1 } }
     ]);
 
+
+    // convert aggregated data to time-series format
     const bookingData = [];
     const revenueData = [];
 
@@ -106,7 +120,8 @@ export const getDashboardData = async (startDate, endDate) => {
         revenueData.push({ label, value: item.totalRevenue });
     });
 
-    // Calculate average booking duration
+
+    // average booking duration
     let totalDuration = 0;
     let totalDurationBookings = 0;
 
@@ -179,6 +194,7 @@ export const getDashboardData = async (startDate, endDate) => {
     }
     ]);
 
+    
     // Parse the result
     let newCustomers = 0;
     let returningCustomers = 0;
