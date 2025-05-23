@@ -73,7 +73,7 @@ export const getDashboardData = async (startDate, endDate) => {
     if (diffInDays <= 30) {
         groupFormat = "%Y-%m-%d";
         labelKey = "day";
-    } else if (diffInDays <= 365) {
+    } else if (diffInDays > 31 && diffInDays <= 365) {
         groupFormat = "%Y-%m";
         labelKey = "month";
     } else {
@@ -82,7 +82,7 @@ export const getDashboardData = async (startDate, endDate) => {
     }
 
 
-    // aggregate booking trends
+    // Fetch trends data
     const trends = await bookingModel.aggregate([
         {
             $match: {
@@ -103,31 +103,64 @@ export const getDashboardData = async (startDate, endDate) => {
         { $sort: { "_id.date": 1 } }
     ]);
 
-
-    // convert aggregated data to time-series format
     const bookingData = [];
     const revenueData = [];
 
-    trends.forEach(item => {
-        const dateStr = item._id.date;
-        let label;
+    if (labelKey === "month") {
+        // Initialize all months to 0
+        const trendMap = new Map(trends.map(item => [item._id.date, item]));
 
-        if (labelKey === "month") {
-            const [, month] = dateStr.split("-");
-            label = MONTHS[parseInt(month, 10) - 1]; 
-        } else if (labelKey === "day") {
-            const [, month] = dateStr.split("-");
-            label = MONTHS[parseInt(month, 10) - 1]; 
-        } else {
-            label = dateStr; 
+        for (let i = 0; i < 12; i++) {
+            const monthStr = (i + 1).toString().padStart(2, "0");
+            const year = start.getFullYear(); 
+            const dateKey = `${year}-${monthStr}`;
+            const data = trendMap.get(dateKey);
+
+            bookingData.push({
+                label: MONTHS[i],
+                value: data ? data.bookingCount : 0
+            });
+
+            revenueData.push({
+                label: MONTHS[i],
+                value: data ? data.totalRevenue : 0
+            });
         }
 
-        bookingData.push({ label, value: item.bookingCount });
-        revenueData.push({ label, value: item.totalRevenue });
-    });
+    } else if (labelKey === "day") {
+        const trendMap = new Map(trends.map(item => [item._id.date, item]));
+
+        const current = new Date(start);
+        while (current <= end) {
+            const year = current.getFullYear();
+            const month = (current.getMonth() + 1).toString().padStart(2, "0");
+            const day = current.getDate().toString().padStart(2, "0");
+            const dateKey = `${year}-${month}-${day}`;
+            const label = `${MONTHS[parseInt(month, 10) - 1]} ${day}`;
+            const data = trendMap.get(dateKey);
+
+            bookingData.push({ label, value: data ? data.bookingCount : 0 });
+            revenueData.push({ label, value: data ? data.totalRevenue : 0 });
+
+            current.setDate(current.getDate() + 1);
+        }
+
+    } else {
+        const trendMap = new Map(trends.map(item => [item._id.date, item]));
+        const startYear = start.getFullYear();
+        const endYear = end.getFullYear();
+
+        for (let year = startYear; year <= endYear; year++) {
+            const dateKey = year.toString();
+            const data = trendMap.get(dateKey);
+
+            bookingData.push({ label: dateKey, value: data ? data.bookingCount : 0 });
+            revenueData.push({ label: dateKey, value: data ? data.totalRevenue : 0 });
+        }
+    }
 
 
-
+    
     // average booking duration
     let totalDuration = 0;
     let totalDurationBookings = 0;
