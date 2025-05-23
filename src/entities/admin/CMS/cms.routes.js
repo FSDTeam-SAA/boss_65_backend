@@ -31,7 +31,7 @@ router.post(
   multerUpload([{ name: "file", maxCount: 5 }]),
   uploadCmsAsset
 );
-router.get("/assets/:id", verifyToken, adminMiddleware, getCmsAssetByIdController);
+router.get("/assets/:id",getCmsAssetByIdController);
 
 router.get("/assets", getAllCmsAssets);
 
