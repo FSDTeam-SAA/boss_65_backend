@@ -23,7 +23,6 @@ import { multerUpload } from "../../../core/middlewares/multer.js";
 import { adminMiddleware, verifyToken } from "../../../core/middlewares/authMiddleware.js";
 
 const router = express.Router();
-
 //
 // Asset routes
 //
