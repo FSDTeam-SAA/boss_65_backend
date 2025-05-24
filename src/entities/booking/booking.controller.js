@@ -210,3 +210,20 @@ export const  getBookingStats = async (req, res) => {
     generateResponse(res, 500, false, "Failed to get booking stats", error.message);
   }
 };
+
+
+
+export const searchBooking = async (req, res) => {
+  try {
+    const { date, status } = req.query;
+
+    const bookings = await bookingService.searchBookings({ date, status });
+
+    return generateResponse(res, 200, true, 'Bookings fetched successfully.', bookings);
+
+  } catch (error) {
+    console.error("Error in searchBooking:", error);
+    return generateResponse(res, 400, false, error.message || 'Failed to search bookings.', null);
+  }
+};
+
