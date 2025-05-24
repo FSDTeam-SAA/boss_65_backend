@@ -96,12 +96,6 @@ for (let requestedSlot of timeSlots) {
   total = Math.max(0, total - discount);
     }
 
-
-
-
-
-
-
     // STEP 5: Create Booking
     const booking = await Booking.create({
         user: {
@@ -121,7 +115,6 @@ for (let requestedSlot of timeSlots) {
     });
     return booking;
 };
-
 
 
 export const getBookingById = async (id) => {
