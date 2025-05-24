@@ -90,7 +90,9 @@ for (let requestedSlot of timeSlots) {
 
     // If user should have more free slots than awarded, apply free booking now
     if (freeSlotsShouldHave > freeSlotsAwarded) {
-        total = 0; // make this booking free
+        // Apply discount for only one slot
+  const discount = service.pricePerSlot;
+  total = Math.max(0, total - discount);
     }
 
 

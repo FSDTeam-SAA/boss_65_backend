@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Moisja API Collection",
+    "name": "boss_65 API Collection",
     "description": "A comprehensive collection containing both authentication and user management APIs",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "version": "1.0.0"
@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:5000"
+      "value": "http://localhost:5003"
     }
   ],
   "item": [
