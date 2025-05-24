@@ -48,13 +48,20 @@ export const createBookingController = async (req, res) => {
 };
 
 
-
 export const getAllBookings = async (req, res) => {
   try {
-    const bookings = await bookingService.getAllBookings();
-    return generateResponse(res, 200, true, 'Bookings fetched successfully', bookings);
+    const { startDate, endDate, status, page = 1, limit = 10 } = req.query;
+
+    const paginationOptions = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+
+    const result = await bookingService.getAllBookings({ startDate, endDate, status }, paginationOptions);
+
+    return generateResponse(res, 200, true, 'Bookings fetched successfully', result);
   } catch (error) {
-    console.error("Error in getAllBookings:", error); // <--- Add this
+    console.error("Error in getAllBookings:", error);
     return generateResponse(res, 500, false, 'Failed to fetch bookings', null);
   }
 };
@@ -68,6 +75,7 @@ export const getBookingById = async (req, res) => {
     return generateResponse(res, 404, false, error.message, null);
   }
 };
+
 
 export const updateBooking = async (req, res) => {
   try {
