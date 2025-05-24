@@ -126,8 +126,8 @@ for (let requestedSlot of timeSlots) {
 export const getBookingById = async (id) => {
   const booking = await Booking.findById(id)
     .populate('service')
-    .populate('room')        // ✅ Populate 'room' directly
-    .populate('promoCode');  // ✅ Populate promoCode
+    .populate('room')        
+    .populate('promoCode');  
 
   if (!booking) throw new Error('Booking not found');
   return booking;
@@ -212,3 +212,60 @@ export const checkAvailabilityService = async (date, serviceId) => {
 
     return { available: true, slots: availableSlots };
 };
+
+
+
+// Search bookings by date and status
+const isValidDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return !isNaN(date.getTime());
+};
+
+const isValidStatus = (status) => {
+  return ['pending', 'confirmed', 'cancelled', 'refunded'].includes(status);
+};
+
+
+export const searchBookings = async ({ date, status }) => {
+  const query = {};
+
+  // Handle date filtering 
+  if (date) {
+    if (!isValidDate(date)) {
+      throw new Error("Invalid date format.");
+    }
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    query.date = { $gte: startOfDay, $lte: endOfDay };
+  }
+
+  // Handle status filtering 
+  if (status) {
+    if (!isValidStatus(status)) {
+      throw new Error("Invalid booking status.");
+    }
+
+    query.status = status;
+  }
+
+  // If neither provided, throw an error
+  if (!date && !status) {
+    throw new Error("At least one filter (date or status) must be provided.");
+  }
+
+  const bookings = await Booking.find(query)
+    .populate('room')
+    .populate('service')
+    .populate('promoCode')
+    .sort({ createdAt: -1 });
+
+  return bookings;
+};
+
+
+
