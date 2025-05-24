@@ -2,6 +2,7 @@ import PromoCode from '../promo_code/promo_code.model.js';
 import Booking from './booking.model.js';
 import Service from '../admin/Services/createServices.model.js';
 import { slotGenerator } from '../../lib/slotGenerator.js';
+import { createPaginationInfo } from '../../lib/pagination.js';
 
 
 export const createBookingService = async (data) => {
@@ -134,9 +135,70 @@ export const getBookingById = async (id) => {
 };
 
 
-export const getAllBookings = async (query = {}) => {
-  return await Booking.find(query).sort({ createdAt: -1 });
+
+
+
+// search bookings by date range and status
+
+const isValidDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return !isNaN(date.getTime());
 };
+
+const isValidStatus = (status) => {
+  return ['pending', 'confirmed', 'cancelled', 'refunded'].includes(status);
+};
+
+export const getAllBookings = async ({ startDate, endDate, status } = {}, { page = 1, limit = 10 } = {}) => {
+  const query = {};
+
+  // Handle date range filtering
+  if (startDate || endDate) {
+    if (startDate && !isValidDate(startDate)) throw new Error("Invalid startDate format.");
+    if (endDate && !isValidDate(endDate)) throw new Error("Invalid endDate format.");
+
+    query.date = {};
+
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      query.date.$gte = start;
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      query.date.$lte = end;
+    }
+  }
+
+  // Handle status filtering
+  if (status) {
+    if (!isValidStatus(status)) throw new Error("Invalid booking status.");
+    query.status = status;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [totalData, bookings] = await Promise.all([
+    Booking.countDocuments(query),
+    Booking.find(query)
+      .populate('room')
+      .populate('service')
+      .populate('promoCode')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+  ]);
+
+  const pagination = createPaginationInfo(page, limit, totalData);
+
+  return {
+    bookings,
+    pagination,
+  };
+};
+
 
 export const updateBooking = async (id, status) => {
   const allowedStatuses = ['pending', 'confirmed', 'cancelled', 'refunded'];
@@ -213,59 +275,6 @@ export const checkAvailabilityService = async (date, serviceId) => {
     return { available: true, slots: availableSlots };
 };
 
-
-
-// Search bookings by date and status
-const isValidDate = (dateStr) => {
-  const date = new Date(dateStr);
-  return !isNaN(date.getTime());
-};
-
-const isValidStatus = (status) => {
-  return ['pending', 'confirmed', 'cancelled', 'refunded'].includes(status);
-};
-
-
-export const searchBookings = async ({ date, status }) => {
-  const query = {};
-
-  // Handle date filtering 
-  if (date) {
-    if (!isValidDate(date)) {
-      throw new Error("Invalid date format.");
-    }
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    query.date = { $gte: startOfDay, $lte: endOfDay };
-  }
-
-  // Handle status filtering 
-  if (status) {
-    if (!isValidStatus(status)) {
-      throw new Error("Invalid booking status.");
-    }
-
-    query.status = status;
-  }
-
-  // If neither provided, throw an error
-  if (!date && !status) {
-    throw new Error("At least one filter (date or status) must be provided.");
-  }
-
-  const bookings = await Booking.find(query)
-    .populate('room')
-    .populate('service')
-    .populate('promoCode')
-    .sort({ createdAt: -1 });
-
-  return bookings;
-};
 
 
 
