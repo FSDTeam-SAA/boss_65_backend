@@ -121,7 +121,8 @@ export const getBookingById = async (id) => {
   const booking = await Booking.findById(id)
     .populate('service')
     .populate('room')        
-    .populate('promoCode');  
+    .populate('promoCode')
+    .populate('category');  
 
   if (!booking) throw new Error('Booking not found');
   return booking;
@@ -179,6 +180,10 @@ export const getAllBookings = async ({ startDate, endDate, status } = {}, { page
       .populate('room')
       .populate('service')
       .populate('promoCode')
+      .populate({
+        path: 'service',
+        populate: { path: 'category' } 
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
