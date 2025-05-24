@@ -1,8 +1,6 @@
 import { generateResponse } from '../../lib/responseFormate.js';
 import { checkAvailabilityService, createBookingService } from './booking.service.js';
-
 import Booking from './booking.model.js';
-
 import * as bookingService from './booking.service.js';
 
 
@@ -91,6 +89,7 @@ export const updateBooking = async (req, res) => {
   }
 };
 
+
 export const deleteBooking = async (req, res) => {
   try {
     await bookingService.deleteBooking(req.params.id);
@@ -99,7 +98,6 @@ export const deleteBooking = async (req, res) => {
     return generateResponse(res, 400, false, error.message, null);
   }
 };
-
 
 
 export const checkAvailabilityController = async (req, res) => {
@@ -129,10 +127,9 @@ export const checkAvailabilityController = async (req, res) => {
 };
 
 
-
 export const  getBookingStats = async (req, res) => {
   try {
-    const year = new Date().getFullYear(); // optionally support query param
+    const year = new Date().getFullYear(); 
     const start = new Date(`${year}-01-01`);
     const end = new Date(`${year}-12-31`);
 
@@ -220,18 +217,4 @@ export const  getBookingStats = async (req, res) => {
 };
 
 
-
-export const searchBooking = async (req, res) => {
-  try {
-    const { date, status } = req.query;
-
-    const bookings = await bookingService.searchBookings({ date, status });
-
-    return generateResponse(res, 200, true, 'Bookings fetched successfully.', bookings);
-
-  } catch (error) {
-    console.error("Error in searchBooking:", error);
-    return generateResponse(res, 400, false, error.message || 'Failed to search bookings.', null);
-  }
-};
 
