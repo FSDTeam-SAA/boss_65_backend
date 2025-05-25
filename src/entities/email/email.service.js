@@ -3,13 +3,19 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const sendEmail = async ({ to, subject, body }) => {
+export const sendEmail = async ({ to, subject, body ,name,phoneNumber}) => {
   try {
     const { data, error } = await resend.emails.send({
       from: process.env.EMAIL_FROM,
       to: [to],
       subject,
-      html: `<p>${body}</p>`,
+      html: `
+      <h3>Contact Message Details</h3>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Phone:</strong> ${phoneNumber || 'N/A'}</p>
+    <p><strong>Message:</strong></p>
+    <p>${body}</p>
+    `,
     });
 
     if (error) {
