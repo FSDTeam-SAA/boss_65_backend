@@ -1,4 +1,3 @@
-// email/email.routes.js
 import express from 'express';
 import { sendEmailController } from './email.controller.js';
 
