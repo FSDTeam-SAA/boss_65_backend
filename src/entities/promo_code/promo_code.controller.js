@@ -5,10 +5,10 @@ import {
   updatePromoCodeService,
   deletePromoCodeService,
   applyPromoCodeService,
-  sendEmail,
 } from "./promo_code.service.js";
 import { generateResponse } from "../../lib/responseFormate.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
+import sendEmail from "../../lib/sendEmail.js";
 
 
 export const createPromoCode = async (req, res) => {
@@ -85,31 +85,49 @@ export const sendEmailController = async (req, res) => {
   const { email, subject, body, promoCode } = req.body;
 
   if (!email || !subject || !body || !promoCode) {
-    return res.status(400).json({ message: 'All fields are required' });
+    return generateResponse(
+      res,
+      400,
+      "fail",
+      "Email, subject, body, and promoCode are required.",
+      null
+    );
   }
 
   try {
-    const emailList = email.split(',').map(e => e.trim());
+    const html = `
+      <div style="font-family: Arial, sans-serif;">
+        <h1 style="color: #333;">${subject}</h1>
+        <p style="color: #555;">Hello,</p>
+        <p>${body}</p>
+        <p style="color: #555;">Your promo code is: <strong>${promoCode}</strong></p>
+        <p style="color: #555;">Thank you for using our service!</p>
+      </div>
+    `;
 
-    const sendResults = await Promise.all(
-      emailList.map(async (singleEmail) => {
-        try {
-          const result = await sendEmail({
-            to: singleEmail,
-            subject,
-            body,
-            promoCode,
-          });
-          return { email: singleEmail, status: 'success', result };
-        } catch (err) {
-          return { email: singleEmail, status: 'failed', error: err.message };
-        }
-      })
+    const result = await sendEmail({ to: email, subject, html });
+
+    if (result.success) {
+      return generateResponse(res, 200, "success", "Email sent successfully", {
+        to: email,
+        subject,
+        promoCode,
+        sentAt: new Date().toISOString(),
+      });
+    } else {
+      return generateResponse(res, 500, "error", "Failed to send email", {
+        error: result.error || "Unknown error while sending email",
+      });
+    }
+  } catch (error) {
+    return generateResponse(
+      res,
+      500,
+      "error",
+      "An unexpected error occurred while sending email",
+      { error: error.message }
     );
-
-    res.status(200).json({ message: 'Emails processed', data: sendResults });
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to send emails', error: err.message });
   }
 };
+
 
