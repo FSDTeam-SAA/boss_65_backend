@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import Booking from '../booking/booking.model.js';
 import { Payment } from './payment.model.js';
+import sendEmail from '../../lib/sendEmail.js';
+import bookingConfirmationTemplate from '../../lib/payment_success_template.js';
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -9,6 +11,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
+  
+  if (!sig) {
+    console.error('No Stripe signature found in headers.');
+    return res.status(400).send('Webhook Error: No signature found');
+  }
 
   try {
     event = stripe.webhooks.constructEvent(
@@ -23,38 +30,69 @@ export const stripeWebhook = async (req, res) => {
 
   try {
     switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
 
-        // Update Payment status
-        const payment = await Payment.findOneAndUpdate(
-            { stripeSessionId: session.id },
-            {
-              paymentStatus: 'paid',
-              paymentIntentId: session.payment_intent,
-            },
-          { new: true }
-        );
+    case 'checkout.session.completed': {
+      
+      const session = event.data.object;
 
-        if (!payment) {
-          console.warn('Payment not found for session:', session.id);
-          break;
-        }
+      const payment = await Payment.findOneAndUpdate(
+        { stripeSessionId: session.id },
+        {
+          paymentStatus: 'paid',
+          paymentIntentId: session.payment_intent,
+        },
+        { new: true }
+      );
 
-        // Update Booking status
-        await Booking.findByIdAndUpdate(
-          payment.booking,
-          {
-            status: 'confirmed',
-            paymentStatus: 'paid',
-          },
-          
-          { new: true }
-        );
-
-        console.log(`Booking ${payment.booking} confirmed via webhook`);
+      if (!payment) {
+        console.warn('Payment not found for session:', session.id);
         break;
       }
+
+      const booking = await Booking.findByIdAndUpdate(
+        payment.booking,
+        {
+          status: 'confirmed',
+          paymentStatus: 'paid',
+        },
+        { new: true }
+      )
+      .populate('room')
+      .populate({
+        path: 'service',
+        populate: {
+          path: 'category'
+        }
+      })
+
+      if (!booking) {
+        console.warn('Booking not found for payment:', payment._id);
+        break;
+      }
+
+
+      // Prepare email payload
+      const emailHtml = bookingConfirmationTemplate({
+        name: `${booking.user.firstName} ${booking.user.lastName}`,
+        email: booking.user.email,
+        phone: booking.user.phone,
+        category: booking.service.category.name,
+        room: booking.room.title,
+        service: booking.service.name,
+        time: booking.timeSlots,
+        bookingId: booking._id, 
+      });
+
+      // Send confirmation email
+      await sendEmail({
+        to: booking.user.email,
+        subject: 'Your Booking Confirmation',
+        html: emailHtml,
+      });
+
+      break;
+    }
+
 
       case 'charge.refunded':
       case 'refund.updated':
@@ -101,3 +139,60 @@ export const stripeWebhook = async (req, res) => {
     res.status(500).send('Webhook handler error');
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      // case 'checkout.session.completed': {
+      //   const session = event.data.object;
+
+
+      //   // Update Payment status
+      //   const payment = await Payment.findOneAndUpdate(
+      //       { stripeSessionId: session.id },
+      //       {
+      //         paymentStatus: 'paid',
+      //         paymentIntentId: session.payment_intent,
+      //       },
+      //     { new: true }
+      //   );
+
+      //   // console.log("Payment found:", payment);
+
+      //   if (!payment) {
+      //     console.warn('Payment not found for session:', session.id);
+      //     break;
+      //   }
+
+      //   // Update Booking status
+      //   await Booking.findByIdAndUpdate(
+      //     payment.booking,
+      //     {
+      //       status: 'confirmed',
+      //       paymentStatus: 'paid',
+      //     },
+          
+      //     { new: true }
+      //   );
+
+      //   // console.log(`Booking ${payment.booking} confirmed via webhook`);
+      //   break;
+      // }
