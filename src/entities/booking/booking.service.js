@@ -39,11 +39,17 @@ for (let requestedSlot of timeSlots) {
 }
 
 
-    // STEP 2: Calculate total price based on duration
-    const durationPerSlot = service.slotDurationHours; // in hours
-    const basePricePerHour = service.pricePerSlot || 0;
-    const totalHours = timeSlots.length * durationPerSlot;
-    let total = basePricePerHour * totalHours;
+    // STEP 2: Calculate total price based on number of people
+    const pricePerSlot = service.pricePerSlot || 0;
+    let total = pricePerSlot * timeSlots.length * numberOfPeople;
+
+
+
+
+    // const durationPerSlot = service.slotDurationHours; // in hours
+    // const basePricePerHour = service.pricePerSlot || 0;
+    // const totalHours = timeSlots.length * durationPerSlot;
+    // let total = basePricePerHour * totalHours;
 
 
     
