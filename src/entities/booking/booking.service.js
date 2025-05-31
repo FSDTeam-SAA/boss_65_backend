@@ -137,8 +137,6 @@ export const getBookingById = async (id) => {
 
 
 
-
-
 // search bookings by date range and status
 
 const isValidDate = (dateStr) => {
@@ -147,7 +145,7 @@ const isValidDate = (dateStr) => {
 };
 
 const isValidStatus = (status) => {
-  return ['pending', 'confirmed', 'cancelled', 'refunded'].includes(status);
+  return ['confirmed', 'cancelled', 'refunded'].includes(status);
 };
 
 export const getAllBookings = async ({ startDate, endDate, status } = {}, { page = 1, limit = 10 } = {}) => {
@@ -172,6 +170,8 @@ export const getAllBookings = async ({ startDate, endDate, status } = {}, { page
       query.date.$lte = end;
     }
   }
+  query.status = { $ne: "pending" }; // Exclude deleted bookings
+  query.paymentStatus = { $ne: "pending" }; // Exclude deleted bookings
 
   // Handle status filtering
   if (status) {
@@ -203,6 +203,8 @@ export const getAllBookings = async ({ startDate, endDate, status } = {}, { page
     pagination,
   };
 };
+
+
 
 
 export const updateBooking = async (id, status) => {
