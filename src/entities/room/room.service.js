@@ -24,7 +24,7 @@ export const updateRoomService = async (id, updateData) => {
   return await Room.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true
-  }).populate("category");
+  })
 };
 
 
