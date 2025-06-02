@@ -65,6 +65,7 @@ const bookingSchema = new Schema({
         default: 'pending',
     },
     freeSlotsAwarded: { type: Number, default: 0 },
+    isManualBooking: { type: Boolean, default: false }
 }, 
 {
     timestamps: true

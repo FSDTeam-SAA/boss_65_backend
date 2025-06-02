@@ -102,5 +102,21 @@ const userAdminLenderMiddleware = (req, res, next) => {
 };
 
 
-export{ userMiddleware, adminMiddleware, lenderMiddleware, adminLenderMiddleware, userAdminLenderMiddleware };
+const optionalVerifyToken = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) return next(); 
+
+  try {
+    const decoded = jwt.verify(token, accessTokenSecrete);
+    const user = await User.findById(decoded._id).select('-password -createdAt -updatedAt -__v');
+    if (user) req.user = user;
+  } catch (err) {
+    console.warn('Token present but invalid. Proceeding as guest.');
+  }
+
+  next(); 
+};
+
+export{ userMiddleware, adminMiddleware, lenderMiddleware, adminLenderMiddleware, userAdminLenderMiddleware , optionalVerifyToken};
 

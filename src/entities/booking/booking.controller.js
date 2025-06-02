@@ -27,6 +27,7 @@ export const createBookingController = async (req, res) => {
       return generateResponse(res, 400, false, "At least one time slot must be selected");
     }
 
+
     // Create booking
     const booking = await createBookingService({
       user,
@@ -37,6 +38,16 @@ export const createBookingController = async (req, res) => {
       promoCode,
       numberOfPeople,
     });
+
+    
+    // If the user is an admin, set manual booking flags
+    // and update status and payment status
+    if(req.user?.role === 'ADMIN') {
+      booking.isManualBooking = true; 
+      booking.status = "confirmed" ,
+      booking.paymentStatus = "paid"
+      await booking.save();
+    }
 
     generateResponse(res, 201, true, "Booking created successfully", booking);
   } catch (error) {
