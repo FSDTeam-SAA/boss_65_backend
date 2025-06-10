@@ -264,7 +264,10 @@ export const getDashboardData = async (startDate, endDate) => {
             new: newCustomers,
             returning: returningCustomers,
         },
-        recentBookings: totalBookings.slice(0, 3).map(booking => ({
+        recentBookings: totalBookings
+        .filter(booking => booking.status === "confirmed")
+        .slice(0, 3)
+        .map(booking => ({
             id: booking._id,
             user: booking.user,
             room: booking.room,
