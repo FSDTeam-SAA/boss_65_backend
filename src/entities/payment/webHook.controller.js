@@ -71,6 +71,16 @@ export const stripeWebhook = async (req, res) => {
       }
 
 
+    
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
+
       // Prepare email payload
       const emailHtml = bookingConfirmationTemplate({
         name: `${booking.user.firstName} ${booking.user.lastName}`,
@@ -80,7 +90,8 @@ export const stripeWebhook = async (req, res) => {
         room: booking.room.title,
         service: booking.service.name,
         time: booking.timeSlots,
-        bookingId: booking._id, 
+        bookingId: booking._id,
+        date: formatDate(booking.date)
       });
 
       // Send confirmation email

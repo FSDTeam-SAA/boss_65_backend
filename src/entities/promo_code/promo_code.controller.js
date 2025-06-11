@@ -9,6 +9,7 @@ import {
 import { generateResponse } from "../../lib/responseFormate.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
 import sendEmail from "../../lib/sendEmail.js";
+import User from "../auth/auth.model.js";
 
 
 export const createPromoCode = async (req, res) => {
@@ -80,21 +81,25 @@ export const applyPromoCode = async (req, res) => {
 };
 
 
+export const sendBulkEmailController = async (req, res) => {
+  const { subject, body, promoCode } = req.body;
 
-export const sendEmailController = async (req, res) => {
-  const { email, subject, body, promoCode } = req.body;
-
-  if (!email || !subject || !body || !promoCode) {
+  if (!subject || !body || !promoCode) {
     return generateResponse(
       res,
       400,
       "fail",
-      "Email, subject, body, and promoCode are required.",
+      "Subject, body, and promoCode are required.",
       null
     );
   }
 
   try {
+    const users = await User.find({}, "email"); 
+    if (!users.length) {
+      return generateResponse(res, 404, "fail", "No users found.", null);
+    }
+
     const html = `
       <div style="font-family: Arial, sans-serif;">
         <h1 style="color: #333;">${subject}</h1>
@@ -105,26 +110,32 @@ export const sendEmailController = async (req, res) => {
       </div>
     `;
 
-    const result = await sendEmail({ to: email, subject, html });
+    // Send emails one by one (or you can use Promise.all for parallel sending)
+    const results = await Promise.all(
+      users.map((user) =>
+        sendEmail({
+          to: user.email,
+          subject,
+          html,
+        })
+      )
+    );
 
-    if (result.success) {
-      return generateResponse(res, 200, "success", "Email sent successfully", {
-        to: email,
-        subject,
-        promoCode,
-        sentAt: new Date().toISOString(),
-      });
-    } else {
-      return generateResponse(res, 500, "error", "Failed to send email", {
-        error: result.error || "Unknown error while sending email",
-      });
-    }
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.length - successCount;
+
+    return generateResponse(res, 200, "success", "Bulk email send process completed", {
+      total: users.length,
+      success: successCount,
+      failed: failCount,
+    });
   } catch (error) {
+    console.error("Bulk email error:", error);
     return generateResponse(
       res,
       500,
       "error",
-      "An unexpected error occurred while sending email",
+      "An unexpected error occurred while sending bulk emails",
       { error: error.message }
     );
   }
