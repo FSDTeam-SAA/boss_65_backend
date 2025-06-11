@@ -1,58 +1,63 @@
-# Node Express Boilerplate
+## 🔧 Environment Setup
 
-This is a boilerplate for building a REST API using Node.js and Express.js. The boilerplate includes the following features:
+To run this project locally, you must create a `.env` file in the root directory and populate it with the following variables. You can use `.env.example` as a reference.
 
-- **Authentication**: The boilerplate uses JWT for authentication. The user can register, log in, and use the refresh token to obtain a new access token.
-- **Error Handling**: The boilerplate includes error handling middleware to catch and handle errors.
-- **Validation**: The boilerplate includes input validation using Joi.
-- **Security**: The boilerplate includes security middleware such as helmet and csurf.
-- **Database**: The boilerplate uses MongoDB as the database.
-- **Testing**: The boilerplate includes unit tests using Jest and Supertest.
+### Required Environment Variables:
 
-## How to use
+| Variable | Description |
+|----------|-------------|
+| `PORT` | Port the server runs on (e.g. `5000`) |
+| `MONGO_URI` | MongoDB connection string (e.g. from MongoDB Atlas) |
+| `ACCESS_TOKEN_SECRET` | Secret used for JWT access tokens |
+| `ACCESS_TOKEN_EXPIRES` | JWT access token expiry (e.g. `7d`) |
+| `REFRESH_TOKEN_SECRET` | Secret for refresh tokens (should differ from access token) |
+| `REFRESH_TOKEN_EXPIRES` | JWT refresh token expiry (e.g. `10d`) |
+| `SALT` | Number of salt rounds for password hashing (e.g. `10`) |
 
-1. Clone the repository and install the dependencies by running `npm install`.
-2. Create a .env file in the root of the project and add the following variables:
-    - `PORT`: The port number for the server.
-    - `MONGO_URI`: The MongoDB connection string.
-    - `JWT_SECRET`: The secret for generating the JWT.
-    - `JWT_EXPIRES_IN`: The expiration time for the JWT.
-    - `JWT_REFRESH_SECRET`: The secret for generating the refresh token.
-    - `JWT_REFRESH_EXPIRES_IN`: The expiration time for the refresh token.
-3. Run the server by running `npm start`.
-4. Run the tests by running `npm test`.
+### Cloudinary (for image uploads):
+| Variable | Description |
+|----------|-------------|
+| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Your Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret |
 
-## API Endpoints
+### Email Configuration:
+| Variable | Description |
+|----------|-------------|
+| `EMAIL_EXPIRES` | OTP or link expiry in milliseconds (e.g. `900000` = 15 mins) |
+| `EMAIL_HOST` | SMTP host (e.g. `smtp.gmail.com`) |
+| `EMAIL_PORT` | SMTP port (usually `587`) |
+| `EMAIL_ADDRESS` | Your sender email address |
+| `EMAIL_PASS` | App-specific password or SMTP credential |
+| `EMAIL_FROM` | Email used as sender |
+| `EMAIL_TO` | (Optional) default receiver email (for contact forms etc.) |
 
-The boilerplate includes the following API endpoints:
+### Stripe Payment Gateway:
+| Variable | Description |
+|----------|-------------|
+| `STRIPE_SECRET_KEY` | Your Stripe live/test secret key |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret to validate Stripe events |
 
-- **POST /auth/register**: Register a new user.
-- **POST /auth/login**: Log in a user.
-- **POST /auth/refresh-token**: Get a new access token using the refresh token.
-- **POST /auth/forget-password**: Send a password reset email to the user.
-- **POST /auth/reset-password**: Reset the user's password.
-- **GET /user/all-users**: Get all users.
-- **GET /user/all-admins**: Get all admin users.
-- **GET /user/all-super-admins**: Get all super admin users.
-- **GET /user/:id**: Get a user by ID.
-- **PATCH /user/:id**: Update a user.
-- **DELETE /user/:id**: Delete a user.
-- **POST /user/upload-avatar**: Upload a user's avatar.
+### Frontend:
+| Variable | Description |
+|----------|-------------|
+| `FRONTEND_URL` | URL of your frontend app (e.g. `http://localhost:3000` or production domain) |
 
-## Tests
+### DEPLOYED AND HOSTED FRONTEND_URL=https://www.thesocialchamber.com
 
-The boilerplate includes unit tests using Jest and Supertest. The tests cover the following endpoints:
+### Google Maps Integration:
+| Variable | Description |
+|----------|-------------|
+| `PLACE_ID` | Optional, for specific location lookups |
+| `GOOGLE_API_KEY` | Google Maps/Places API key |
 
-- **POST /auth/register**: Register a new user.
-- **POST /auth/login**: Log in a user.
-- **POST /auth/refresh-token**: Get a new access token using the refresh token.
-- **POST /auth/forget-password**: Send a password reset email to the user.
-- **POST /auth/reset-password**: Reset the user's password.
-- **GET /user/all-users**: Get all users.
-- **GET /user/all-admins**: Get all admin users.
-- **GET /user/all-super-admins**: Get all super admin users.
-- **GET /user/:id**: Get a user by ID.
-- **PATCH /user/:id**: Update a user.
-- **DELETE /user/:id**: Delete a user.
-- **POST /user/upload-avatar**: Upload a user's avatar.
-# boss65_backend
+---
+
+### ✅ Steps to Use
+
+1. Copy `.env.example` → `.env`
+2. Fill in the required values.
+3. Run the server:
+```bash
+npm install
+npm run dev
