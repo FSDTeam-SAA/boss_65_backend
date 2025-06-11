@@ -17,9 +17,12 @@ export function slotGenerator(date, start, end, slotDurationHours, stepMinutes =
   const slotDurationMins = slotDurationHours * 60;
 
   // If end is less than start, it means it goes overnight to next day
-  if (endMins <= startMins) {
-    endMins += 24 * 60; // add 24 hours in minutes
-  }
+  if (startMins === endMins) {
+  endMins += 1440;
+} else if (endMins <= startMins) {
+  endMins += 1440;
+}
+
 
   let currentStart = startMins;
 
