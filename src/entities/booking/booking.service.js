@@ -24,7 +24,7 @@ export const createBookingService = async (data) => {
     if (!service) throw new Error('Service not found');
 
 // STEP 1: Check if selected slots are still available
-const { slots: availableSlots } = await checkAvailabilityService(date, serviceId);
+const { slots: availableSlots } = await checkAvailabilityService(date, serviceId,room);
 
 for (let requestedSlot of timeSlots) {
     const match = availableSlots.find(
@@ -233,7 +233,7 @@ export const deleteBooking = async (id) => {
 
 
 // generating time slots and checking the time slots are availabel or not
-export const checkAvailabilityService = async (date, serviceId) => {
+export const checkAvailabilityService = async (date, serviceId,roomId) => {
     const service = await Service.findById(serviceId);
     if (!service) throw new Error('Service not found');
 
@@ -262,6 +262,7 @@ export const checkAvailabilityService = async (date, serviceId) => {
 
     const existingBookings = await Booking.find({
         date: { $gte: startOfDay, $lte: endOfDay },
+        room:roomId,
         service: serviceId,
         status: { $in: ['pending', 'confirmed'] }
     });
