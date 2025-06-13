@@ -103,13 +103,13 @@ export const deleteBooking = async (req, res) => {
 
 export const checkAvailabilityController = async (req, res) => {
   try {
-    const { date, serviceId,roomId } = req.body;
+    const { date, serviceId } = req.body;
 
-    if (!date || !serviceId ||!roomId) {
-      return generateResponse(res, 400, false, "date and serviceId and roomId are required");
+    if (!date || !serviceId) {
+      return generateResponse(res, 400, false, "date and serviceId  are required");
     }
 
-    const result = await checkAvailabilityService(date, serviceId,roomId);
+    const result = await checkAvailabilityService(date, serviceId);
 
     if (!result.available) {
       return generateResponse(
