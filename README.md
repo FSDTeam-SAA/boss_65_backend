@@ -1,5 +1,7 @@
 ## 🔧 Environment Setup
 
+###Api Documentation : https://documenter.getpostman.com/view/44715743/2sB2x6mCDe
+
 To run this project locally, you must create a `.env` file in the root directory and populate it with the following variables. You can use `.env.example` as a reference.
 
 ### Required Environment Variables:
