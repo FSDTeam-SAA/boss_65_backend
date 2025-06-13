@@ -37,6 +37,7 @@ export const createBookingController = async (req, res) => {
       promoCode,
       numberOfPeople,
     });
+    // console.log(booking);
 
     generateResponse(res, 201, true, "Booking created successfully", booking);
   } catch (error) {
@@ -102,13 +103,13 @@ export const deleteBooking = async (req, res) => {
 
 export const checkAvailabilityController = async (req, res) => {
   try {
-    const { date, serviceId } = req.body;
+    const { date, serviceId,roomId } = req.body;
 
-    if (!date || !serviceId) {
-      return generateResponse(res, 400, false, "date and serviceId are required");
+    if (!date || !serviceId ||!roomId) {
+      return generateResponse(res, 400, false, "date and serviceId and roomId are required");
     }
 
-    const result = await checkAvailabilityService(date, serviceId);
+    const result = await checkAvailabilityService(date, serviceId,roomId);
 
     if (!result.available) {
       return generateResponse(

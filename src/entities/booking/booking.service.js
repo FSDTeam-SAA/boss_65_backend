@@ -11,7 +11,7 @@ export const createBookingService = async (data) => {
         date,
         timeSlots,
         service: serviceId,
-        room,
+        room:roomId,
         promoCode,
         numberOfPeople,
     } = data;
@@ -21,10 +21,11 @@ export const createBookingService = async (data) => {
     if (isNaN(bookingDate.getTime())) throw new Error('Invalid date');
 
     const service = await Service.findById(serviceId);
+    console.log(service);
     if (!service) throw new Error('Service not found');
 
 // STEP 1: Check if selected slots are still available
-const { slots: availableSlots } = await checkAvailabilityService(date, serviceId,room);
+const { slots: availableSlots } = await checkAvailabilityService(date, serviceId,roomId);
 
 for (let requestedSlot of timeSlots) {
     const match = availableSlots.find(
@@ -112,7 +113,7 @@ for (let requestedSlot of timeSlots) {
         date: bookingDate,
         timeSlots,
         service: serviceId,
-        room,
+        room:roomId,
         total,
         status: 'pending',
         paymentStatus: 'pending',
@@ -252,7 +253,10 @@ export const checkAvailabilityService = async (date, serviceId,roomId) => {
         service.timeRange.start,
         service.timeRange.end,
         service.slotDurationHours,
-        60 // stepMinutes
+        60,
+        
+        
+
     );
 
     const startOfDay = new Date(date);
@@ -266,6 +270,7 @@ export const checkAvailabilityService = async (date, serviceId,roomId) => {
         service: serviceId,
         status: { $in: ['pending', 'confirmed'] }
     });
+    
 
     if (existingBookings.length === 0) {
         return { available: true, slots: slots.map(slot => ({ ...slot, available: true })) };
