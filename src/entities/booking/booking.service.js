@@ -118,7 +118,7 @@ for (let requestedSlot of timeSlots) {
         status: 'pending',
         paymentStatus: 'pending',
         promoCode: appliedPromo || undefined,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 5 * 1000),
         freeSlotsAwarded: freeSlotsShouldHave > freeSlotsAwarded ? freeSlotsAwarded + 1 : freeSlotsAwarded
     });
     return booking;
