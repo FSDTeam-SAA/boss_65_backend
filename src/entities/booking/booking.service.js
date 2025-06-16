@@ -258,6 +258,7 @@ export const checkAvailabilityService = async (date, serviceId,roomId) => {
         
 
     );
+  
 
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
