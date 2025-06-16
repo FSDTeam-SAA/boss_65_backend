@@ -23,7 +23,7 @@ export const createBookingService = async (data) => {
     const service = await Service.findById(serviceId);
     console.log(service);
     if (!service) throw new Error('Service not found');
-
+// test
 // STEP 1: Check if selected slots are still available
 const { slots: availableSlots } = await checkAvailabilityService(date, serviceId,roomId);
 
