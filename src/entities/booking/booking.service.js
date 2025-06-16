@@ -11,7 +11,7 @@ export const createBookingService = async (data) => {
         date,
         timeSlots,
         service: serviceId,
-        room,
+        room:roomId,
         promoCode,
         numberOfPeople,
     } = data;
@@ -25,7 +25,7 @@ export const createBookingService = async (data) => {
     if (!service) throw new Error('Service not found');
 // test12
 // STEP 1: Check if selected slots are still available
-const { slots: availableSlots } = await checkAvailabilityService(date, serviceId);
+const { slots: availableSlots } = await checkAvailabilityService(date, serviceId,roomId);
 
 for (let requestedSlot of timeSlots) {
     const match = availableSlots.find(
@@ -102,7 +102,7 @@ for (let requestedSlot of timeSlots) {
   const discount = service.pricePerSlot;
   total = Math.max(0, total - discount);
     }
-    total= parseFloat(total.toFixed(2));
+    total= Math.round(total)
 
     // STEP 5: Create Booking
     const booking = await Booking.create({
@@ -113,12 +113,12 @@ for (let requestedSlot of timeSlots) {
         date: bookingDate,
         timeSlots,
         service: serviceId,
-        room,
+        room:roomId,
         total,
         status: 'pending',
         paymentStatus: 'pending',
         promoCode: appliedPromo || undefined,
-        expiresAt: new Date(Date.now() + 5 * 1000),
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         freeSlotsAwarded: freeSlotsShouldHave > freeSlotsAwarded ? freeSlotsAwarded + 1 : freeSlotsAwarded
     });
     return booking;
@@ -234,7 +234,7 @@ export const deleteBooking = async (id) => {
 
 
 // generating time slots and checking the time slots are availabel or not
-export const checkAvailabilityService = async (date, serviceId) => {
+export const checkAvailabilityService = async (date, serviceId,roomId) => {
     const service = await Service.findById(serviceId);
     if (!service) throw new Error('Service not found');
 
@@ -258,7 +258,6 @@ export const checkAvailabilityService = async (date, serviceId) => {
         
 
     );
-  
 
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -267,7 +266,7 @@ export const checkAvailabilityService = async (date, serviceId) => {
 
     const existingBookings = await Booking.find({
         date: { $gte: startOfDay, $lte: endOfDay },
-        
+        room:roomId,
         service: serviceId,
         status: { $in: ['pending', 'confirmed'] }
     });
