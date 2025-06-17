@@ -38,6 +38,7 @@ export const createBookingController = async (req, res) => {
       promoCode,
       numberOfPeople,
     });
+    // console.log(booking);
 
     
     // If the user is an admin, set manual booking flags
@@ -113,13 +114,13 @@ export const deleteBooking = async (req, res) => {
 
 export const checkAvailabilityController = async (req, res) => {
   try {
-    const { date, serviceId } = req.body;
+    const { date, serviceId,roomId } = req.body;
 
-    if (!date || !serviceId) {
-      return generateResponse(res, 400, false, "date and serviceId are required");
+    if (!date || !serviceId ||!roomId) {
+      return generateResponse(res, 400, false, "date and serviceId and roomId are required");
     }
 
-    const result = await checkAvailabilityService(date, serviceId);
+    const result = await checkAvailabilityService(date, serviceId,roomId);
 
     if (!result.available) {
       return generateResponse(
@@ -229,3 +230,25 @@ export const  getBookingStats = async (req, res) => {
 
 
 
+export const getBookingByEmail = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return generateResponse(res, 400, false, "Email is required");
+    }
+
+    const bookings = await Booking.find({ "user.email": email })
+      .populate('room')
+      .populate('service');
+
+    if (bookings.length === 0) {
+      return generateResponse(res, 404, false, "No bookings found for this email");
+    }
+
+    return generateResponse(res, 200, true, "Bookings retrieved successfully", bookings);
+  } catch (error) {
+    console.error("Error getting bookings by email:", error);
+    return generateResponse(res, 500, false, "Server error", error.message);
+  }
+};
