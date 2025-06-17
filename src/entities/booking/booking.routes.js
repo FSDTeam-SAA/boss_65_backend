@@ -14,10 +14,19 @@ import { checkAvailabilityController } from './booking.controller.js';
 
 const router = express.Router();
 
+
+// Public
+router.post('/', optionalVerifyToken,  createBookingController); 
+router.get('/stats',getBookingStats);
+router.get('/', verifyToken, adminMiddleware, getAllBookings);
+router.get('/:id', getBookingById);
+router.post('/check-availability', checkAvailabilityController);
+
 router
   .route('/')
   .post(optionalVerifyToken, createBookingController)   
   .get(verifyToken, adminMiddleware, getAllBookings);    
+
 
 router.get('/stats', getBookingStats);                  
 

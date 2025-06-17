@@ -102,7 +102,7 @@ for (let requestedSlot of timeSlots) {
   const discount = service.pricePerSlot;
   total = Math.max(0, total - discount);
     }
-    total= Math.round(total)
+    total= parseFloat(total.toFixed(2));
 
     // STEP 5: Create Booking
     const booking = await Booking.create({
