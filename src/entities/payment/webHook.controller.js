@@ -85,7 +85,6 @@ export const stripeWebhook = async (req, res) => {
       const emailHtml = bookingConfirmationTemplate({
         name: `${booking.user.firstName} ${booking.user.lastName}`,
         email: booking.user.email,
-        phone: booking.user.phone,
         category: booking.service.category.name,
         room: booking.room.title,
         service: booking.service.name,
