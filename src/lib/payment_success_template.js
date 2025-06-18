@@ -2,7 +2,6 @@
 const bookingConfirmationTemplate = ({
   name,
   email,
-  phone,
   category,
   room,
   service,
@@ -21,7 +20,6 @@ const bookingConfirmationTemplate = ({
       <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>${bookingId}</td></tr>
       <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>${name}</td></tr>
       <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>${email}</td></tr>
-      <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>${phone}</td></tr>
       <tr><td style="padding: 8px 0;"><strong>Category:</strong></td><td>${category}</td></tr>
       <tr><td style="padding: 8px 0;"><strong>Room:</strong></td><td>${room}</td></tr>
       <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>${service}</td></tr>
