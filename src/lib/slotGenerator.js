@@ -1,10 +1,11 @@
 export function slotGenerator(date, start, end, slotDurationHours, stepMinutes = 60) {
   const slots = [];
 
-  function timeToMinutes(t) {
-    const [h, m] = t.split(':').map(Number);
-    return h * 60 + m;
-  }
+ function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  if (t === "00:00") return 1440;
+  return h * 60 + m;
+}
 
   function minutesToTime(mins) {
     const h = Math.floor(mins / 60) % 24; // mod 24 for times past midnight

@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { cloudinaryApiKey, cloudinaryCloudName, cloudinarySecret } from "../core/config/config.js";
+import { CLIENT_RENEG_LIMIT } from "tls";
 
 cloudinary.config({
   cloud_name: cloudinaryCloudName,
@@ -15,6 +16,7 @@ export const cloudinaryUpload = async (filePath, public_id, folder) => {
       public_id,
       folder,
     });
+    
 
     fs.unlinkSync(filePath);
     return uploadImage;

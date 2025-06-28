@@ -231,6 +231,13 @@ export const deleteBooking = async (id) => {
   return true;
 };
 
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  if (t === "00:00") return 1440;
+  return h * 60 + m;
+}
+
+
 
 
 // generating time slots and checking the time slots are availabel or not
@@ -279,11 +286,18 @@ export const checkAvailabilityService = async (date, serviceId,roomId) => {
     const bookedSlots = existingBookings.flatMap(b => b.timeSlots);
 
     const availableSlots = slots.map(slot => {
-        const isBooked = bookedSlots.some(
-            (b) => slot.start < b.end && slot.end > b.start
-        );
-        return { ...slot, available: !isBooked };
-    });
+  const slotStartMin = timeToMinutes(slot.start);
+  const slotEndMin = timeToMinutes(slot.end);
+
+  const isBooked = bookedSlots.some(b => {
+    const bookedStartMin = timeToMinutes(b.start);
+    const bookedEndMin = timeToMinutes(b.end);
+    return slotStartMin < bookedEndMin && slotEndMin > bookedStartMin;
+  });
+
+  return { ...slot, available: !isBooked };
+});
+
 
     return { available: true, slots: availableSlots };
 };
