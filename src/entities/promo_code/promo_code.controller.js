@@ -10,6 +10,7 @@ import { generateResponse } from "../../lib/responseFormate.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
 import sendEmail from "../../lib/sendEmail.js";
 import User from "../auth/auth.model.js";
+import bookingModel from "../booking/booking.model.js";
 
 
 export const createPromoCode = async (req, res) => {
@@ -95,9 +96,9 @@ export const sendBulkEmailController = async (req, res) => {
   }
 
   try {
-    const users = await User.find({}, "email"); 
+    const users = await bookingModel.find({}, "user.email"); 
     if (!users.length) {
-      return generateResponse(res, 404, "fail", "No users found.", null);
+      return generateResponse(res, 404, "fail", "No booking found.", null);
     }
 
     const html = `
@@ -112,9 +113,9 @@ export const sendBulkEmailController = async (req, res) => {
 
     // Send emails one by one (or you can use Promise.all for parallel sending)
     const results = await Promise.all(
-      users.map((user) =>
+      users.map((bookingModel) =>
         sendEmail({
-          to: user.email,
+          to:  bookingModel.user?.email,
           subject,
           html,
         })
